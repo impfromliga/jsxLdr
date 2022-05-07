@@ -1,0 +1,26 @@
+{
+  "name": "jsxldr",
+  "version": "1.0.0",
+  "description": "tini jsx loader",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/impfromliga/jsxLdr.git"
+  },
+  "keywords": [
+    "jsx"
+  ],
+  "author": "Tukmakov Fedor <impfromliga@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/impfromliga/jsxLdr/issues"
+  },
+  "homepage": "https://github.com/impfromliga/jsxLdr#readme",
+  "devDependencies": {
+    "http-server": "^14.1.0"
+  }
+}
