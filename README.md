@@ -1,29 +1,29 @@
 # jsxLdr
 microLoader for tiny jsx components
 
-#Install
+# Install
 ```shell
 npm i
 ```
 
-#Run
+# Run
 ```shell
 npm run start
 ```
 
-#Connect the library
+# Connect the library
 - just add in head or in body:
 ```html
 <script src="jsxLdr.js"></script>
 ```
 
-#Include components
+# Include components
 ```html
 <div class="foo" jsxLdr="component"></div>
 ```
 - deafault file extension is .htm it can be omited
 
-#Components syntax
+# Components syntax
 - component can be writed as .htm file
 
 ```html
@@ -39,11 +39,11 @@ npm run start
 ```
 - everything that is not cut will stay as html layout
 
-##style section
+## style section
 - every leading .__ pattern will replaced by root className ( .foo in example)
 - you can better combine styles by BEM syntax
 
-##script section
+## script section
 - will be wrapped to
 
 ```js
