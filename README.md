@@ -17,7 +17,7 @@ npm run start
 <script src="jsxLdr.js"></script>
 ```
 
-# Include components
+# Include Components
 ```html
 <div class="foo" jsxLdr="component"></div>
 ```
@@ -84,3 +84,6 @@ function load($){
 - first time run automaticly onload when jsxLdr.js find elements with [jsxLdr] argument
 - repeat calls can ommit js argument (pass last one)
 - for now is appendix API
+
+# Nested Components
+- Worked! (for now in static only)
