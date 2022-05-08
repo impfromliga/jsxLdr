@@ -39,11 +39,11 @@ npm run start
 ```
 - everything that is not cut will stay as html layout
 
-## style section
+## &lt;style&gt; section
 - every leading .__ pattern will replaced by root className ( .foo in example)
 - you can better combine styles by BEM syntax
 
-## script section
+## &lt;script&gt; section
 - will be wrapped to
 
 ```js
@@ -60,26 +60,27 @@ function load($){
 - exact .__ selector will return this (rootElement) directly
 
 ### $.toString()
-- return rootElement.classList
+- return rootElement.className
 - in string representations return root className (like template strings binding)
 ```js
 	`<div class=${$}__element_modificator>`
 //	<div class=block__element_modificator>
 ```
 
-### $.load(js?)
-- re/load the code section
-- first time run automaticly onload when loader find elements with [jsxLdr] argument
-- repeat calls can ommit js argument (pass last one)
-
-### $.innerHTML
-- setter and getter this.innerHTML with run $.load after set
-- innerHtml rebilds DOM, so it need hook to reload code section after, so that it is
-- can be slow, for better choise see $.appendChield
-
 ### $.removeChild(HtmlElement)
-- just alias for this.removeChield
+- just alias for this.removeChild
 
 ### $.appendChild(InnerHTML)
 - overload this.appendChild(InnerHTML:string):HtmlElement|HtmlElement[]
 - can append multiple, in this case return array of child nodes
+
+### $.innerHTML
+- setter and getter this.innerHTML with run $.load() after set
+- innerHtml rebilds DOM, so it need hook to reload code section after, so that it is
+- can be slow, for better choise see $.appendChild()
+
+### $.load(js?)
+- re/load the code section
+- first time run automaticly onload when jsxLdr.js find elements with [jsxLdr] argument
+- repeat calls can ommit js argument (pass last one)
+- for now is appendix API
