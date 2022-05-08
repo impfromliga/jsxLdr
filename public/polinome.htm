@@ -1,8 +1,8 @@
 <button class=__del_btn>-</button>
 <button class=__add_btn>+</button>
 <script>
-    $('.__add_btn').onclick = e => $.innerHTML += `<div class=${$}__part><input value=0></div>`
-    $('.__del_btn').onclick = e => $.removeChild($('.__part:last-of-type'));
+    $('.__add_btn').onclick = e => $.appendChild(`<div class=${$}__part><input value=0></div>`)
+    $('.__del_btn').onclick = e => $.removeChild($('.__part:last-of-type'))
 </script>
 <style>
     .__{counter-reset:section -1;text-align:right}

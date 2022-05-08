@@ -8,7 +8,12 @@ let jsxLdr= e=>{
             toString:{value:f=>el.className},
             load:{value:js=>new Function('$',$el.js||=js).call(el,$el)},
             innerHTML:{get:f=>el.innerHTML,set:f=>setTimeout($el.load)&&(el.innerHTML=f)},
-            removeChild:{value:f=>el.removeChild(f)},appendChild:{value:f=>el.appendChild(f)},
+            removeChild:{value:f=>el.removeChild(f)},
+            appendChild:{value:function(add){
+                if(typeof add!='string')return el.appendChild(add);
+                let t= Object.assign(document.createElement('div'),{innerHTML:add}).children;
+                return t.length==1? this.appendChild(t[0]): [].slice.call(t).map(ch=>this.appendChild(ch));
+            }},
         })
 
         let src= el.getAttribute('jsxLdr');
