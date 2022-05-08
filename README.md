@@ -86,4 +86,5 @@ function load($){
 - for now is appendix API
 
 # Nested Components
-- Worked! (for now in static only)
+- Worked by static
+- Worked by $.appendChild(InnerHTML:String) call

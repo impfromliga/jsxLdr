@@ -5,8 +5,8 @@
     $('.__del_btn').onclick = e => $.removeChild($('.__part:last-of-type'))
 </script>
 <style>
-    .__{counter-reset:section -1;text-align:right}
-    .__part{display:inline;float:right}
+    .__{counter-reset:section -1;text-align:right;min-height:1em}
+    .__part, .__add_btn, .__del_btn{display:inline;float:right;margin:0 .25em}
     .__part::before{content:"+"}
     .__part:not(:first-of-type)::after{content:"x**"counter(section)}
     .__part>input{width:3em;text-align:right;counter-increment:section}

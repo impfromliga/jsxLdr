@@ -2,7 +2,7 @@ let jsxLdr= async e=>{
     let root=this!=window?this:document.body;
     let $=($,q)=>q=='.__'?$:$.querySelector(parse($.className,q));
     let parse=(BEM,str)=>str.replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
-    let el,jsxs= [].slice.call(root.querySelectorAll(`[jsxLdr]`));
+    let el,jsxs= [].slice.call(root.querySelectorAll(`[jsxldr]:not([jsxState="ready"])`));
     while(el=jsxs.pop())await(async el=>{
         console.log(`start compiling: ${el.className}`);
         let $el= $.bind(null,el);
@@ -14,7 +14,9 @@ let jsxLdr= async e=>{
             appendChild:{value:function(add){
                 if(typeof add!='string')return el.appendChild(add);
                 let t= Object.assign(document.createElement('div'),{innerHTML:add}).children;
-                return t.length==1? this.appendChild(t[0]): [].slice.call(t).map(ch=>this.appendChild(ch));
+                let ret= t.length==1? this.appendChild(t[0]): [].slice.call(t).map(ch=>this.appendChild(ch));
+                jsxLdr.call(this); //dynamic nested
+                return ret;
             }},
         })
 
