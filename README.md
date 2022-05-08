@@ -6,7 +6,7 @@ microLoader for tiny jsx components
 npm i
 ```
 
-# Run
+# Run (Live Preview)
 ```shell
 npm run start
 ```

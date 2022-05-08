@@ -4,7 +4,7 @@
   "description": "tini jsx loader",
   "main": "index.html",
   "scripts": {
-    "start": "http-server",
+    "start": "live-server --open=public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/impfromliga/jsxLdr#readme",
   "devDependencies": {
-    "http-server": "^14.1.0"
+    "live-server": "^1.2.2"
   }
 }
