@@ -1,0 +1,9 @@
+<button class=__del _click=$del>-</button>
+<button class=__add _click=$add>+</button>
+<script>
+    $.add=f=>$.appendChild(`<div class=mypoly jsxldr=polinome></div>`)
+    $.del=f=>$.removeChild($('.mypoly:last-of-type'))
+</script>
+<style>
+    .mypoly{padding:1em;border-bottom: 1px solid gray}
+</style>

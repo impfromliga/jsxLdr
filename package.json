@@ -12,14 +12,14 @@
     "url": "git+https://github.com/impfromliga/jsxLdr.git"
   },
   "keywords": [
-    "jsx"
+    "jsx", "loader"
   ],
   "author": "Tukmakov Fedor <impfromliga@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/impfromliga/jsxLdr/issues"
+    "url": "https://github.com/impfromliga/jsxldr/issues"
   },
-  "homepage": "https://github.com/impfromliga/jsxLdr#readme",
+  "homepage": "https://github.com/impfromliga/jsxldr#readme",
   "devDependencies": {
     "live-server": "^1.2.2"
   }

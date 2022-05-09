@@ -1,4 +1,4 @@
-# jsxLdr
+# jsxldr
 microLoader for tiny jsx components
 
 # Install
@@ -14,12 +14,12 @@ npm run start
 # Connect the library
 - just add in head or in body:
 ```html
-<script src="jsxLdr.js"></script>
+<script src="jsxldr.js"></script>
 ```
 
 # Include Components
 ```html
-<div class="foo" jsxLdr="component"></div>
+<div class="foo" jsxldr="component"></div>
 ```
 - deafault file extension is .htm it can be omited
 
@@ -81,7 +81,7 @@ function load($){
 
 ### $.load(js?)
 - re/load the code section
-- first time run automaticly onload when jsxLdr.js find elements with [jsxLdr] argument
+- first time run automaticly onload when jsxldr.js find elements with [jsxldr] argument
 - repeat calls can ommit js argument (pass last one)
 - for now is appendix API
 
