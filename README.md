@@ -74,17 +74,31 @@ function load($){
 - overload this.appendChild(InnerHTML:string):HtmlElement|HtmlElement[]
 - can append multiple, in this case return array of child nodes
 
-### $.innerHTML
-- setter and getter this.innerHTML with run $.load() after set
-- innerHtml rebilds DOM, so it need hook to reload code section after, so that it is
-- can be slow, for better choise see $.appendChild()
-
-### $.load(js?)
-- re/load the code section
-- first time run automaticly onload when jsxldr.js find elements with [jsxldr] argument
-- repeat calls can ommit js argument (pass last one)
-- for now is appendix API
+### $.log(tabs:Number)
+- can be used for log recursive tree of virtual element binded scope (children & methods)
 
 # Nested Components
 - Worked by static
 - Worked by $.appendChild(InnerHTML:String) call
+
+# Supported Bind events
+You can force config const eventTypes to extend library by other native DOM events, but some may need extra checks. For now config set supporting for following:
+- click
+- change
+- dblclick
+
+## self bind
+```html
+<button _click=$method></button>
+<script>
+	$.method=e=> //do something
+</script>
+```
+
+## nested bind
+```html
+<button _click=.sub$method></button>
+<div class=sub jsxldr=subcomponent.htm></div>
+```
+- click will call $.method of .sub element from subcomponent.htm &lt;script&gt; section
+- just click event supported for now

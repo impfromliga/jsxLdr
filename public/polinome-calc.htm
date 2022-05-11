@@ -1,21 +1,18 @@
 <div class=header>header:
-    <button class=__add _click=#mylist$add>+</button>
-<!--    <button class=__del _click=#mylist$del>-</button>-->
+    <button class=__add _click=.mylist$add>+</button>
+    <button class=__del _click=.mylist$del>-</button>
 </div>
-<div id=mylist class=mylist jsxldr=polinome-lst></div>
-<div class=footer>footer:</div>
-<script>
-    //$('menu').on= e => console.log('onMenu', e);
-
-    // for manual bind onclick to elements use:
-    // $('.__add_btn').onclick = $.add
-    // $('.__del').onclick = $.del
-
-    // $({
-    //     add(){$.appendChild(`<div class=${$}__part><input value=0></div>`)},
-    //     del(){$.removeChild($('.__part:last-of-type'))},
-    // })
-</script>
+<div jsxldr=polinome-lst class=mylist></div>
+<div class=footer _dblclick=.mylist$clear>footer:
+</div>
+    <input _change=.mylist$change placeholder=input.component.background />
 <style>
-    .header,.footer{background:#def;padding:.25em .5em}
+    .header,.footer{
+        background:#def;
+        padding:.25em .5em;
+    }
 </style>
+
+<script>
+    //this component use nested bindings for extend functionality from polinome-lst.htm
+</script>
