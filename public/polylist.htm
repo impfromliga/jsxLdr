@@ -1,0 +1,16 @@
+<script>
+    $.add=e=> $.appendChild(`<div _class=polinome></div>`)
+    $.del=e=> e instanceof Element? $.removeChild(e): $.removeChild( $('.polinome:last-of-type') )
+    $.clear=e=> this.querySelectorAll('.polinome').forEach($.removeChild)
+    $.change=e=> this.style.background= e.target.value
+
+    queueMicrotask(f=>{ //queueMicrotask can natively simulate synchronous onmount component stage
+        $.add(), $.add(), $.add();
+    })
+</script>
+<style>
+    .polinome{
+        padding:1em;
+        border-bottom: 1px solid gray;
+    }
+</style>

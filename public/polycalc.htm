@@ -1,0 +1,18 @@
+<div class=header>header:
+    <button class=__add _click=.polylist$add>+</button>
+    <button class=__del _click=.polylist$del>-</button>
+</div>
+<div _class=polylist></div>
+<div class=footer _dblclick=.polylist$clear>footer:
+</div>
+    <input _change=.polylist$change placeholder=input sub.background />
+<style>
+    .header,.footer{
+        background:#def;
+        padding:.25em .5em;
+    }
+</style>
+
+<script>
+    //this component use nested bindings for extend functionality from polylist.htm
+</script>

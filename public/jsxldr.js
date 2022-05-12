@@ -1,16 +1,18 @@
 (function(){
 const parse=(BEM,str)=>str.replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
-const querier=(el,q)=>q=='.__'?el:el.querySelector(parse(el.className,q));
+const querier=(BEM,el,q)=>q=='.__'?el:el.querySelector(parse(BEM,q));
 const EVENT_TYPES=['_click','_dblclick','_change'];
 
 function jsxldr($pa){
     const pa=this!=window?this:document.body;
-    return [].slice.call(pa.querySelectorAll(`[jsxldr]`)).map(async el=>{
-        let href= el.getAttribute('jsxldr');
-        el.removeAttribute('jsxldr');
-
+    return [].slice.call(pa.querySelectorAll(`[_class]`)).map(async el=>{
+        let jsxldrAttr= el.getAttribute('_class');
+        let[,jsxClass,href,ext]=/(?:([^:]*):)?([^:]+?)(\.[^.]*)?$/.exec(jsxldrAttr)??[]
+        jsxClass??=href; href+=ext??='.htm';
+        if(!href || !jsxClass || /\./.test(jsxClass))return;
+        el.removeAttribute('_class'); el.classList.add(jsxClass);
         const _children={};
-        const $= Object.defineProperties(querier.bind(null,el),{
+        const $= Object.defineProperties(querier.bind(null,jsxClass,el),{
             removeChild:{value:ch=>el.removeChild(ch)},
             appendChild:{value:function(add){
                 if(typeof add!='string')return el.appendChild(add);
@@ -21,7 +23,7 @@ function jsxldr($pa){
             }},
             parent:{get(){return $pa}},            //TODO: JSX scope pa
             children:{get(){return sel=> sel? _children[sel]: _children.slice() } },
-            toString:{value:f=> el.className},
+            toString:{value:f=> jsxClass},
             log:{value:t=>`${'\t'.repeat(t)}${$}:{\n${[
                     ...Object.keys(_children).map(ch => _children[ch].log(-~t)),
                     ...Object.keys($).map(k => `${'\t'.repeat(-~t)}$${k}:${$[k]}`)
@@ -29,7 +31,7 @@ function jsxldr($pa){
             }}`},
         })
 
-        await fetch(href=(/\.[a-z]+$/i.test(href)? href: href+'.htm')).then(r=>r.text()).then(async str=>{
+        await fetch(href).then(r=>r.text()).then(async str=>{
             let {0:script,2:js,index}=/<script>(\n|\r)*((.|\n|\r)*?)<\/script>/.exec(str)??{0:0,2:0,index:0};
             //js set
             new Function('$',js).call(el,$)
