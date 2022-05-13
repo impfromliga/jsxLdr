@@ -57,11 +57,6 @@ function load($){
 	`<div class=${$}__element_modificator>`
 //	<div class=block__element_modificator>
 ```
-### $.appendChild(InnerHTML)
-- overload this.appendChild(InnerHTML:string):HtmlElement|HtmlElement[]
-- can append multiple, in this case return array of child nodes
-### $.removeChild(HtmlElement)
-- just alias for this.removeChild
 ### $.log(tabs:Number)
 - can be used for log recursive tree of virtual element binded scope (children & methods)
 # Nested Components
@@ -86,5 +81,27 @@ You can force config const eventTypes to extend library by other native DOM even
 ```
 - click will call $.method of .sub element from subcomponent.htm &lt;script&gt; section
 # TODO Roadmap
-- fetch cache
-- bind arguments extend
+## features
+- $('className[]') return childs[], :fisrt/last-of-type converts to [0/-1] child
+- $('className') return :fisrt-of-type
+- reuse $('className[]') in removeChild
+- bind with arguments (child constructor standart)
+- validate child by interface above _class
+## fixes
+- element.removeChild(childElement) destruct $(childElement)
+- nested child bind infinite chain length (for now just self children)
+## optimization
+- fetch cache (for now just browser/server chache somehow)
+
+## moot features
+```js
+f[Symbol.toStringTag] //detect async function binding (and then update)
+f=>Promise[] //runtime detect Promise or Promise[] for update when resolve
+
+$('beforeend',`<div _class=component></div>`) insertAdjacentHTML and $.update shortcut
+
+$({}) //one pass set component scope
+$('<div _class=component></div>') //capture exact load targets
+_class=component(args) //component constructor args
+_class=_{modificator}:component //argument reactive bind
+```

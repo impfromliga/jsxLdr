@@ -1,9 +1,8 @@
 (function(){
 const parse=(BEM,str)=>str.replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
-const querier=(BEM,el,q)=>q=='.__'?el:el.querySelector(parse(BEM,q));
 const EVENT_TYPES=['_click','_dblclick','_change'];
 
-function jsxldr($pa){
+function jsxldr($pa, $pa_children){
     const pa=this!=window?this:document.body;
     return [].slice.call(pa.querySelectorAll(`[_class]`)).map(async el=>{
         let jsxldrAttr= el.getAttribute('_class');
@@ -12,24 +11,44 @@ function jsxldr($pa){
         if(!href || !jsxClass || /\./.test(jsxClass))return;
         el.removeAttribute('_class'); el.classList.add(jsxClass);
         const _children={};
-        const $= Object.defineProperties(querier.bind(null,jsxClass,el),{
-            removeChild:{value:ch=>el.removeChild(ch)},
-            appendChild:{value:function(add){
-                if(typeof add!='string')return el.appendChild(add);
-                let t= Object.assign(document.createElement('div'),{innerHTML:add}).children;
-                let ret= t.length==1? this.appendChild(t[0]): [].slice.call(t).map(ch=>this.appendChild(ch));
-                jsxldr.call(el,$); //dynamic nested
-                return ret;
-            }},
-            parent:{get(){return $pa}},            //TODO: JSX scope pa
-            children:{get(){return sel=> sel? _children[sel]: _children.slice() } },
+        const $= Object.defineProperties(q=>q===undefined?jsxldr.call(el,$,_children)
+            :q=='.__'?el:el.querySelector(parse(jsxClass,q)),{
+            parent:{value:$pa},            //TODO: JSX scope pa
+            children:{value:BEM=> BEM? _children[BEM].slice(): _children},
             toString:{value:f=> jsxClass},
-            log:{value:t=>`${'\t'.repeat(t)}${$}:{\n${[
-                    ...Object.keys(_children).map(ch => _children[ch].log(-~t)),
-                    ...Object.keys($).map(k => `${'\t'.repeat(-~t)}$${k}:${$[k]}`)
-                ].join(`,${'\t'.repeat(t)}\n`)
-            }}`},
+            removeChild:{value:$ch=>{
+                console.log(`${$}.removeChild(${$ch})`,$ch);
+                if(typeof $ch=='string'){
+                    let ch= $($ch);
+                    if(!ch)return null
+                    else{
+                        let[...match]=ch.className.match(RegExp(Object.keys(_children).join('|') ));
+                        console.log({match});
+                        if(match.length>1)throw new Error("removeChild by ambiguous selector")
+                        if(match=match[0]){
+                            $ch = _children[match].find($ch => $ch('.__') === ch);
+                            if (!$ch) return null;
+                            let i = _children[$ch].indexOf($ch);
+                            _children[$ch].splice(i,1);
+                        }
+                        return el.removeChild(ch);
+                    }
+                }else if(typeof $ch=='function'){
+                    let i = _children[$ch].indexOf($ch);
+                    if(!~i)return null;
+                    el.removeChild($ch('.__'));
+                    return _children[$ch].splice(i,1)[0];
+                }else return null
+            }},
+            // tree:{value:(t,i)=>`${'\t'.repeat(t)}${$}[${i|0}]:{\n${[
+            //         ...Object.keys($).map(k => `${'\t'.repeat(-~t)}$${k}:${$[k]}`),
+            //         ...Object.keys(_children).map(chs =>
+            //             _children[chs].map((ch,i) => ch.tree(-~t,i))
+            //                 .join(`,${'\t'.repeat(t)}\n`) )
+            //     ].join(`,${'\t'.repeat(t)}\n`)
+            // }}`},
         })
+        if($pa_children)$pa_children[$]=($pa_children[$]??[]).concat($)
 
         await fetch(href).then(r=>r.text()).then(async str=>{
             let {0:script,2:js,index}=/<script>(\n|\r)*((.|\n|\r)*?)<\/script>/.exec(str)??{0:0,2:0,index:0};
@@ -43,8 +62,7 @@ function jsxldr($pa){
             //bind jobs:
             let bindlate=[].slice.call(el.querySelectorAll(EVENT_TYPES.map(e=>`[${e}]`).join(',')));
             //await load nested:
-            (await Promise.all(jsxldr.call(el,$))).map($ch=>_children[$ch]=$ch)
-            //console.log('loaded:', el); console.log($.log());
+            await Promise.all(jsxldr.call(el,$,_children))
             //binds:
             bindlate.forEach(ch=>{
                 EVENT_TYPES.forEach(ev=>{
@@ -52,7 +70,7 @@ function jsxldr($pa){
                     if(!attr)return;
                     let[v,sel,...bind]=/([.#$][^.#$]*)([.#$][^.#$]*)?([.#$][^.#$]*)?/.exec(attr)??[];
                     let $pa=$;
-                    for(;v=bind.shift();sel=v) $pa= $pa.children(sel.slice(1) );
+                    for(;v=bind.shift();sel=v) $pa= $pa.children(sel.slice(1) )[0];
                     [,sel,args]=/\$([^(]*)(?:\(([^)]*)\))?/.exec(sel);
                     if(!sel||!$pa[sel]) throw new Error("empty bind")
                     ch['on' + ev.slice(1)]=$pa[sel];
