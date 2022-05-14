@@ -14,15 +14,21 @@ function jsxldr($pa, $pa_children){
         el.removeAttribute('_class'); el.classList.add(jsxClass);
         const _children={};
         const $= Object.defineProperties(
-            q=>
-                q===undefined?jsxldr.call(el,$,_children) //shortcut $() for refresh this
-                :q=='.__'?el                              //shortcut $('.__') for return this dom element
+            q=>{
+                if(q===undefined) return jsxldr.call(el,$,_children) //shortcut $() for refresh this
+                let[sel,scope]=q.split(/\$(?=[^\]]*$)/)
+                q= sel=='.__'?el                              //shortcut $('.__') for return this dom element
                 :el.querySelector(
                     (jsxClass[0]=='>'?':scope':'')+       //shortcut for :scope> by starting with '>', without typing :scope
                     parse(jsxClass,q)                     //replace '__' pattern in class literals to this jsxClass string
                     
                     //if after all finding $(prop(.prop(.prop(...)))) resolving dom nodes to scope object prop
                 )
+                if(scope!=undefined){
+                    
+                }
+                return q
+            }
             ,{
             parent:{value:$pa},            //TODO: JSX scope pa
             children:{value:BEM=> BEM? _children[BEM].slice(): _children},
