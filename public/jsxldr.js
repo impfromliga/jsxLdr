@@ -1,5 +1,7 @@
 (function(){
 const parse=(BEM,str)=>str.replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
+    .replace(/\[((\d+)n|n(\d+))(\+\d+)?\]/g,`:nth-of-type($2$3n$4)`) //shortcut for :nth-of-type(An+B) by just [An+B] (or [nA+B] //linter fine form)
+    .replace(/\[((\d+)n|n(\d+))-(\d+)?\]/g,`:nth-last-of-type($2$3n+$4)`) //same for :nth-last-of-type(An+B) by [An-B]/[nA-B] (B must exist even if 0)
 const EVENT_TYPES=['_click','_dblclick','_change'];
 
 function jsxldr($pa, $pa_children){
@@ -11,8 +13,17 @@ function jsxldr($pa, $pa_children){
         if(!href || !jsxClass || /\./.test(jsxClass))return;
         el.removeAttribute('_class'); el.classList.add(jsxClass);
         const _children={};
-        const $= Object.defineProperties(q=>q===undefined?jsxldr.call(el,$,_children)
-            :q=='.__'?el:el.querySelector(parse(jsxClass,q)),{
+        const $= Object.defineProperties(
+            q=>
+                q===undefined?jsxldr.call(el,$,_children) //shortcut $() for refresh this
+                :q=='.__'?el                              //shortcut $('.__') for return this dom element
+                :el.querySelector(
+                    (jsxClass[0]=='>'?':scope':'')+       //shortcut for :scope> by starting with '>', without typing :scope
+                    parse(jsxClass,q)                     //replace '__' pattern in class literals to this jsxClass string
+                    
+                    //if after all finding $(prop(.prop(.prop(...)))) resolving dom nodes to scope object prop
+                )
+            ,{
             parent:{value:$pa},            //TODO: JSX scope pa
             children:{value:BEM=> BEM? _children[BEM].slice(): _children},
             toString:{value:f=> jsxClass},
@@ -40,13 +51,13 @@ function jsxldr($pa, $pa_children){
                     return _children[$ch].splice(i,1)[0];
                 }else return null
             }},
-            // tree:{value:(t,i)=>`${'\t'.repeat(t)}${$}[${i|0}]:{\n${[
-            //         ...Object.keys($).map(k => `${'\t'.repeat(-~t)}$${k}:${$[k]}`),
-            //         ...Object.keys(_children).map(chs =>
-            //             _children[chs].map((ch,i) => ch.tree(-~t,i))
-            //                 .join(`,${'\t'.repeat(t)}\n`) )
-            //     ].join(`,${'\t'.repeat(t)}\n`)
-            // }}`},
+            tree:{value:(t,i)=>`${'\t'.repeat(t)}${$}[${i|0}]:{\n${[
+                    ...Object.keys($).map(k => `${'\t'.repeat(-~t)}$${k}:${$[k]}`),
+                    ...Object.keys(_children).map(chs =>
+                        _children[chs].map((ch,i) => ch.tree(-~t,i))
+                            .join(`,${'\t'.repeat(t)}\n`) )
+                ].join(`,${'\t'.repeat(t)}\n`)
+            }}`},
         })
         if($pa_children)$pa_children[$]=($pa_children[$]??[]).concat($)
 
