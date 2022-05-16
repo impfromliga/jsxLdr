@@ -1,4 +1,6 @@
 (function(){
+const nextId=0;
+const map= {};    
 const parse=(BEM,str)=>str.replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
     .replace(/\[((\d+)n|n(\d+))(\+\d+)?\]/g,`:nth-of-type($2$3n$4)`) //shortcut for :nth-of-type(An+B) by just [An+B] (or [nA+B] //linter fine form)
     .replace(/\[((\d+)n|n(\d+))-(\d+)?\]/g,`:nth-last-of-type($2$3n+$4)`) //same for :nth-last-of-type(An+B) by [An-B]/[nA-B] (B must exist even if 0)
@@ -7,25 +9,34 @@ const EVENT_TYPES=['_click','_dblclick','_change'];
 function jsxldr($pa, $pa_children){
     const pa=this!=window?this:document.body;
     return [].slice.call(pa.querySelectorAll(`[_class]`)).map(async el=>{
+        let _id= nextId++;
         let jsxldrAttr= el.getAttribute('_class');
         let[,jsxClass,href,ext]=/(?:([^:]*):)?([^:]+?)(\.[^.]*)?$/.exec(jsxldrAttr)??[]
         jsxClass??=href; href+=ext??='.htm';
         if(!href || !jsxClass || /\./.test(jsxClass))return;
-        el.removeAttribute('_class'); el.classList.add(jsxClass);
+        el.removeAttribute('_class'); el.classList.add(jsxClass); el.setAttribure('jsx',_id);
         const _children={};
         const $= Object.defineProperties(
             q=>{
                 if(q===undefined) return jsxldr.call(el,$,_children) //shortcut $() for refresh this
+                if(q=='.__')return el;                               //shortcut $('.__') for return this dom element
                 let[sel,scope]=q.split(/\$(?=[^\]]*$)/)
-                q= sel=='.__'?el                              //shortcut $('.__') for return this dom element
-                :el.querySelector(
+                if(scope!=undefined){
+                    q+='[jsx]';
+                    scope= scope.split('.')
+                }
+                q= el.querySelectorAll(
                     (jsxClass[0]=='>'?':scope':'')+       //shortcut for :scope> by starting with '>', without typing :scope
                     parse(jsxClass,q)                     //replace '__' pattern in class literals to this jsxClass string
-                    
                     //if after all finding $(prop(.prop(.prop(...)))) resolving dom nodes to scope object prop
                 )
-                if(scope!=undefined){
-                    
+                if(scope){
+                    q= q.flatMap(jsx=>{
+                        jsx=jsx.getAttribute('jsx');
+                        console.log({jsx});
+                        if(jsx in map)return [map[jsx]]
+                        else return []
+                    })
                 }
                 return q
             }
@@ -65,6 +76,7 @@ function jsxldr($pa, $pa_children){
                 ].join(`,${'\t'.repeat(t)}\n`)
             }}`},
         })
+        map[id]=$;
         if($pa_children)$pa_children[$]=($pa_children[$]??[]).concat($)
 
         await fetch(href).then(r=>r.text()).then(async str=>{
