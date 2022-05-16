@@ -3,7 +3,7 @@
 
 <script>
     $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) )
-    $.del=e=> $.removeChild('.__part:last-of-type') || $.parent.del($)
+    $.del=e=> $.removeChild('.__part[-1]') || $.parent.del($)
 </script>
 
 <style>

@@ -3,14 +3,12 @@
 <div class=___mod3>___mod3</div>
 <script>
     $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div _class=polinome></div>`) )
-    $.del=$ch=> $.removeChild($ch) || $.removeChild('.polinome:last-of-type')
+    $.del=$ch=> $.removeChild($ch) || $.removeChild('>[-1]$') //selfchild nth-last-of-type(0n+1) jsx
     $.change=e=> this.style.background= e.target.value
-    $.clear=e=> $.children('polinome').forEach($.removeChild)
-
-    $.clear2=e=> $.removeChild('>.polinome$')
+    $.clear=e=> $.removeChild('>$') //selfchild (every) jsx
     //$('>.polinome:nth-of-type(2n+1)$style.background')='#eee';
     //$('>.polinome[2n+1].style.background')='#eee';
-    //$('>*$')
+    //$('>*')
     queueMicrotask(f=>{ //queueMicrotask can natively simulate synchronous onmount component stage
         $.add(), $.add(), $.add();
     })
@@ -23,7 +21,6 @@
     }
     .polinome[n2+1]{background:#eee}
     .polinome[n2]{background:#ecf}
-    
     .polinome[n0-1]{background:#cfc}
 
     .__::before{color:red;content:'.__::before'}
