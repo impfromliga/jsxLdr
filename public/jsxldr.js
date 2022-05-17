@@ -20,38 +20,51 @@ function jsxldr($pa, $pa_children){
         const $= Object.defineProperties(
             q=>{
                 if(q===undefined) return jsxldr.call(el,$,_children) //shortcut $() for refresh this
-                if(q=='.__')return el;                               //shortcut $('.__') for return this dom element
+                if(q=='.__')return el;                        //shortcut $('.__') for return this dom element
+                //<< TODO: comma separated multiple selectors and/or commas between argument params
                 let[sel,scope]=q.split(/\$(?=[^\]]*$)/)
                 console.log({sel,scope});
                 if(scope!=undefined)sel+='[jsx]';
-                if(sel[0]=='>')sel=':scope'+sel       //shortcut for :scope> by starting with '>', without typing :scope
-                q= parse(jsxClass,sel)            //replace '__' pattern in class literals to this jsxClass string
+                let _el=el;
+                while (sel[0] == '<') [_el, sel] = [el.parentElement, sel.slice(1)]; //switch to parent(s) querySelector
+                if(sel=='[jsx]')q=[_el]
+                else{
+                    if (sel[0] == '>') sel = ':scope' + sel   //shortcut for :scope> by starting with '>', without typing :scope
+                    q = parse(jsxClass, sel)            //replace '__' pattern in class literals to this jsxClass string
 
-                console.log(`${$}.querySelectorAll(${q})`);
-                q= [].slice.call(el.querySelectorAll(q))
-                console.log('=',q);
-                if(scope){
-                    scope= scope.split('.')
-                    //if after all finding $(prop(.prop(.prop(...)))) resolving dom nodes to scope object prop
-                    q= [].flatmap.call(q,jsx=>{
-                        jsx=jsx.getAttribute('jsx');
-                        console.log({jsx});
-                        if(jsx in map)return [map[jsx]]
-                        else return []
-                    })
+                    console.log({sel, scope});
+                    console.log(`${$}.querySelectorAll(${q})`);
+                    q = Array.from(_el.querySelectorAll(q))
                 }
+                console.log('=',q);
+                if(scope!==undefined) q=q.flatMap(el=>{
+                    let id=el.getAttribute('jsx');
+                    jsx=map[id]
+                    return jsx?[jsx]:[]
+                })
+                if(!scope)return q
+                scope=scope.split('.')
+                // let last=scope.pop(); //TODO: (args)
+                //converse dom to $s
+                console.log({q,'typeof q':typeof q,'q.flatMap':q.flatMap})
+                q= q.map(jsx=>{
+                    // resolving prop(.prop(.prop(...)))
+                    for(let s of scope)jsx=jsx[s];
+                    return jsx
+                })
+                console.log('scoped:',q)
                 return q
             }
             ,{
             parent:{value:$pa},            //TODO: JSX scope pa
             children:{value:BEM=> BEM? _children[BEM].slice(): _children},
             toString:{value:f=> jsxClass},
-            removeChild:{value:$chs=>{
-                console.log(`${$}.removeChild(${$chs})`,$chs);
+            removeChilds:{value:$chs=>{
+                console.log(`${$}.removeChilds(${$chs})`,$chs);
                 if(typeof $chs=='string') $chs= $($chs);
                 console.log({$chs});
                 if(!$chs)return null;
-                $chs=[$chs].flat()    //support for removeChild([$ch1,$ch2,...,$chN]) same as removeChild($ch)
+                $chs=[$chs].flat()    //support for removeChilds([$ch1,$ch2,...,$chN]) same as removeChilds($ch)
                 console.log({$chs});
 
                 let dels=$chs.flatMap($ch=>{
@@ -60,6 +73,8 @@ function jsxldr($pa, $pa_children){
                         let i = _children[$ch].indexOf($ch);
                         if(!~i)return[];
                         let id=$ch('.__').getAttribute('jsx');
+                        // map[id]('>$destruct').map() //TODO: chaining
+                        map[id].dismount?.()
                         delete map[id];
                         el.removeChild($ch('.__'));
                         return _children[$ch].splice(i,1)
@@ -68,7 +83,6 @@ function jsxldr($pa, $pa_children){
                     try{return[$ch.parentElement.removeChild($ch)]}catch{return[]}
                 })
                 console.log({dels});
-                dels.map(del=>del.destruct?.());
                 return dels.length?dels:null
             }},
             tree:{value:(t,i)=>`${'\t'.repeat(t)}${$}[${i|0}]:{\n${[
@@ -79,8 +93,8 @@ function jsxldr($pa, $pa_children){
                 ].join(`,${'\t'.repeat(t)}\n`)
             }}`},
         })
-        map[_id]=$;
-        if($pa_children)$pa_children[$]=($pa_children[$]??[]).concat($)
+        map[_id]=$; //global id
+        if($pa_children)$pa_children[$]=($pa_children[$]??[]).concat($) //append jsxs to exist children
 
         await fetch(href).then(r=>r.text()).then(async str=>{
             let {0:script,2:js,index}=/<script>(\n|\r)*((.|\n|\r)*?)<\/script>/.exec(str)??{0:0,2:0,index:0};
@@ -98,15 +112,13 @@ function jsxldr($pa, $pa_children){
             //binds:
             bindlate.forEach(ch=>{
                 EVENT_TYPES.forEach(ev=>{
-                    let attr= ch.getAttribute(ev) ;
-                    if(!attr)return;
+                    let bind= ch.getAttribute(ev) ;
+                    if(!bind)return;
                     //TODO: by $ scope
-                    let[v,sel,...bind]=/([.#$][^.#$]*)([.#$][^.#$]*)?([.#$][^.#$]*)?/.exec(attr)??[];
-                    let $pa=$;
-                    for(;v=bind.shift();sel=v) $pa= $pa.children(sel.slice(1) )[0];
-                    [,sel,args]=/\$([^(]*)(?:\(([^)]*)\))?/.exec(sel);
-                    if(!sel||!$pa[sel]) throw new Error("empty bind")
-                    ch['on' + ev.slice(1)]=$pa[sel];
+                    [bind]=$(bind)
+                    if(!bind)throw new Error('empty bind')
+                    console.log(`${ch}.on`+ev.slice(1),'BINDED',bind)
+                    ch['on'+ev.slice(1)]=bind;
                 })
             })
         })

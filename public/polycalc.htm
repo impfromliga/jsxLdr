@@ -2,6 +2,9 @@
     <button class=__log _click=$log>=</button>
     <button class=__add _click=.polylist$add>+</button>
     <button class=__del _click=.polylist$del>-</button>
+<!--    <button class=__update _click=polylist$update>↻</button>-->
+    <span class="__rtc">{bind_value}</span>
+<!--    <span class="__rtc"><x></x></span>-->
     <input _change=.polylist$change placeholder="input subjsx.background" />
 </div>
 <div _class=polylist></div>
@@ -16,4 +19,8 @@
 
 <script>
     $.log=e=> console.log($.tree())
+    $.emitFromChild=e=>{
+        console.log(e)
+        alert('emitFromChild() fas been fired')
+    }
 </script>
