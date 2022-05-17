@@ -1,16 +1,31 @@
-<script>
-    $.add=e=> $.appendChild(`<div _class=polinome></div>`)
-    $.del=e=> e instanceof Element? $.removeChild(e): $.removeChild( $('.polinome:last-of-type') )
-    $.clear=e=> this.querySelectorAll('.polinome').forEach($.removeChild)
-    $.change=e=> this.style.background= e.target.value
+<button class="__emiter" _click=<$emitFromChild><$emitFromChild</button>
 
+<div class=_mod1>_mod1</div>
+<div class=__element2>__element2 emitFromChild</div>
+<div class=___mod3>___mod3</div>
+<script>
+    $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div _class=polinome></div>`) )
+    $.del=$ch=> $.removeChilds($ch) || $.removeChilds('>[-1]$') //selfchild nth-last-of-type(0n+1) jsx
+    $.change=e=> this.style.background= e.target.value
+    $.clear=e=> $.removeChilds('>$') //selfchild (every) jsx
     queueMicrotask(f=>{ //queueMicrotask can natively simulate synchronous onmount component stage
         $.add(), $.add(), $.add();
     })
+    $.dismount=e=>alert('polylist.dismount called')
 </script>
+
 <style>
     .polinome{
         padding:1em;
         border-bottom: 1px solid gray;
     }
+    .polinome[n2+1]{background:#eee}
+    .polinome[n2]{background:#ecf}
+    .polinome[n0-1]{background:#cfc}
+
+    .__::before{color:red;content:'.__::before'}
+    ._mod1::before{color:red;content:'._mod1::before (dont rewrite! single lodash class)'}
+    .__element2::before{content:'.__element2::before';color:red}
+    .___mod3::before{content:'.___mod3::before';color:red}
+
 </style>
