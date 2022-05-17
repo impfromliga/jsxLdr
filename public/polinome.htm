@@ -1,9 +1,12 @@
 <button class=__del _click=$del>-</button>
 <button class=__add _click=$add>+</button>
+
 <script>
-    $.add=e=> $.appendChild(`<div class=${$}__part><input value=0></div>`)
-    $.del=e=> (e = $('.__part:last-of-type') )? $.removeChild(e): $.parent.del(this)
+    $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) )
+    $.del=e=> $.removeChilds('.__part[-1]') || $.parent.del($)
+    $.dismount=e=>alert('polinome.dismount called')
 </script>
+
 <style>
     .__{counter-reset:section -1;text-align:right;min-height:1em}
     .__part, .__add, .__del{display:inline;float:right;margin:0 .25em}
