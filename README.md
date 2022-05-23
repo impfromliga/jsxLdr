@@ -23,33 +23,33 @@ MicroLoader for fancy jsx components
 	- [emit to parent](#emit)
 
 # <a id=deploy></a>Deploy
-## Clone
+## clone
 ```shell
 git clone https://github.com/impfromliga/jsxldr.git
 ```
-## <a id=install></a>Install
+## <a id=install></a>install
 ```shell
 npm i
 ```
-## <a id=run></a>Run (Live Preview)
+## <a id=run></a>run (Live Preview)
 ```shell
 npm run start
 ```
-# <a id=integration></a>integration
+# <a id=integration></a>Integration
 ## <a id=connect></a>Connect the library
 - just add in head or in body:
 ```html
 <script src="jsxldr.js"></script>
 ```
-## <a id=components></a>Include youre components
+## <a id=components></a>include youre components
 ```html
 <div _class="foo:component.htm"></div>
 ```
 - will init jsx load from component.htm to &lt;div class=foo&gt;
 - if some classes already set, class=.foo will be set by native element.classList.add()
 - deafault file extension is .htm it can be omited
-# <a id=syntax></a>Component syntax &lt;html&gt;
-- component can be writed as .html file
+# <a id=syntax></a>Component syntax
+## &lt;html&gt;
 ```html
 <!-- component layout without root (omitted) -->
 
@@ -62,6 +62,7 @@ npm run start
 </style>
 ```
 - everything that is not cut will stay as html layout
+- component can be writed as .html file
 
 Compiled element will look like
 ```html
@@ -90,7 +91,7 @@ function load($){
 - onload() is virtual wrap youre &lt;script&gt; section, so use its body
 - no special onmount(), just add single queueMicrotask(f=>{})
 [Microtask queuing spec](https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#microtask-queuing)
-- dismount() adding by set $.dismount in your &lt;script&gt; section
+- dismount() adding by set $.dismount prop in your &lt;script&gt; section
 ```js
 <script>
 	//onload
@@ -118,13 +119,13 @@ that work in $() and _click= (etc events) attribute binds
 	- '<$emit' return parrent.emit prop - in can use for binding event from arrtibute, or emit from js
 ## <a id=undefined></a>$(undefined)
 dummy
-- shortcut for upload new inserted class_=jsx.htm components
+- shortcut for update & upload new inserted [_class] components
 ```js
 //now can use for cheepy inline adds like:
 $( this.insertAdjacentHTML('beforeend',`<div class=${$}__element_modificator></div>`) )
 ```
 
-# <a id=api></a>$. internal api methods
+# <a id=api></a>Internal $. api methods
 (inherited from jsx supper class)
 - this methods are reserved and dont iterable by for / forEach / Object.keys()
 ## <a id=toString></a>$.toString()
@@ -150,6 +151,7 @@ this can be redefine and/or add new ones
 - there are public for eny other jsx componet witch have link to this scope
 - used for dom events bindins by parent, child, or component itself
 ## <a id=dismount></a>$.dismount()
+optional
 - this will call before component is dismount by parent.removeChild()
 
 # <a id=nested></a>Nested Components
