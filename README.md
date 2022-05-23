@@ -183,6 +183,7 @@ property getter in all case getters of $.property descriptor will run once on bi
 ```
 # TODO Roadmap
 ## features
+- autoload dynamic children jsx by MutationObserver
 - bind with arguments
 	- [_class=jsx()] child constructor argument standart
 	- [_class=jsx($handle:Emitter)] validate child by emiting interfaces
