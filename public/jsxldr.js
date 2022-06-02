@@ -19,7 +19,7 @@ function jsxldr($pa, $pa_children){
         const _children={};
         const $= Object.defineProperties(
             q=>{
-                if(q===undefined) return jsxldr.call(el,$,_children) //shortcut $() for refresh this
+                if(q===undefined) return Promise.all(jsxldr.call(el,$,_children)) //shortcut $() for refresh this
                 if(q=='.__')return el;                        //shortcut $('.__') for return this dom element
                 //<< TODO: comma separated multiple selectors and/or commas between argument params
                 let[sel,scope]=q.split(/\$(?=[^\]]*$)/)
@@ -108,14 +108,14 @@ function jsxldr($pa, $pa_children){
             //bind jobs:
             let bindlate=[].slice.call(el.querySelectorAll(EVENT_TYPES.map(e=>`[${e}]`).join(',')));
             //await load nested:
-            await Promise.all(jsxldr.call(el,$,_children))
+            await $()
             //binds:
             bindlate.forEach(ch=>{
                 EVENT_TYPES.forEach(ev=>{
                     let bind= ch.getAttribute(ev) ;
-                    if(!bind)return;
+                    if(!bind || !ch.parentElement)return;
                     //TODO: by $ scope
-                    [bind]=$(bind)
+                    [bind]=$(bind) //best 1st ?
                     if(!bind)throw new Error('empty bind')
                     console.log(`${ch}.on`+ev.slice(1),'BINDED',bind)
                     ch['on'+ev.slice(1)]=bind;
