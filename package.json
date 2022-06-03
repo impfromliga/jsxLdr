@@ -1,6 +1,6 @@
 {
   "name": "jsxldr",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "tini jsx loader",
   "main": "index.html",
   "scripts": {
