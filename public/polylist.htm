@@ -1,17 +1,19 @@
 <button class="__emiter" _click=<$emitFromChild><$emitFromChild</button>
 
-<div class=_mod1>_mod1</div>
+<div class=_mod1 _click="$emptyBind">_mod1</div>
 <div class=__element2>__element2 emitFromChild</div>
+<!--default_slot-->
 <div class=___mod3>___mod3</div>
-<script>
-    $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div _class=polinome></div>`) )
-    $.del=$ch=> $.removeChilds($ch) || $.removeChilds('>[-1]$') //selfchild nth-last-of-type(0n+1) jsx
+
+<script>    // $({})
+    $.add=e=> $(this.insertAdjacentHTML('beforeend',`<div _class=polinome></div>`) )
+    $.del=$ch=> $.removeChildren($ch)|| $.removeChildren('>[-1]$')
     $.change=e=> this.style.background= e.target.value
-    $.clear=e=> $.removeChilds('>$') //selfchild (every) jsx
-    queueMicrotask(f=>{ //queueMicrotask can natively simulate synchronous onmount component stage
-        $.add(), $.add(), $.add();
-    })
-    $.dismount=e=>alert('polylist.dismount called')
+    $.clear=e=> $.removeChildren('>$') //selfchild (every) jsx
+await $('@MOUNT');
+    $.add();$.add();$.add();
+await $('@DISMOUNT');
+    alert('polylist dismount');
 </script>
 
 <style>

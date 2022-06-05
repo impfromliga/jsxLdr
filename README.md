@@ -10,17 +10,21 @@ MicroLoader for fancy jsx components
 	- [&lt;script&gt;](#script)
 3. [lifecycle](#lifecycle)
 4. [$ as selector](#selector)
+	- [Redirection (computing)](#computing)
+	- [Сhaining selectors](#chaining)
 5. [$ internal api (jsx supperclass)](#api)
 	- [$.toString()](#tostring)
-	- [$.removeChilds()](#removechilds)
-	- [$.log()](#log)
+	- [$.removeChildren()](#removechildren)
+	- [$.tree()](#tree)
 6. [$ as jsx scope](#scope)
-	- [S.dismount()](#dismount)
+	- [S({})](#dto)
 7. [Nested Components](#nested)
 8. [Bind](#bind)
 	- [events](#event)
 	- [extend from child](#extend)
 	- [emit to parent](#emit)
+9. [Slots](#slots)
+	- [main](#mainslot)
 
 # <a id=deploy></a>Deploy
 ## clone
@@ -37,9 +41,9 @@ npm run start
 ```
 # <a id=integration></a>Integration
 ## <a id=connect></a>Connect the library
-- just add in head or in body:
+- just ad the end of the body:
 ```html
-<script src="jsxldr.js"></script>
+<script type="module">import jsxldr from"./jsxldr.js";jsxldr()</script>
 ```
 ## <a id=components></a>include youre components
 ```html
@@ -87,43 +91,55 @@ function load($){
 - function runs when DOM is loaded
 - this will applyed to rootElement ( .foo in example)
 - $ argument pass the patched query selector functionality and above component scope
-# <a id=lifecycle></a>Lifecycle
-- onload() is virtual wrap youre &lt;script&gt; section, so use its body
-- no special onmount(), just add single queueMicrotask(f=>{})
-[Microtask queuing spec](https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#microtask-queuing)
-- dismount() adding by set $.dismount prop in your &lt;script&gt; section
+# <a id=lifecycle></a>Lifecycle $('@STAGE')
+- init time is first time of running wrapped youre &lt;script&gt; section, so use top of it
 ```js
 <script>
-	//onload
-	queueMicrotask(f=>{
-		//onmount
-	})
-	$.dismount=e=> //ondismount	//for now only for root child (would be upgraded soon)
+	//init
+await $('@MOUNT') //resolved before parent loader(this):Promise
+  //after mounted code...
+await $('@DISMOUNT') //resolved before parent removeChilds(this):Promise
+  //dismount for now only for root child (would be upgraded soon)
 </script>
 ```
-# <a id=selector></a>$(String) as query selector
+# <a id=selector></a>$('.query.selector')
 ## basic features:
 will work also in &lt;style&gt; section
 - selector for querySelector method will replace .__ leading pattern by root className (.foo in example)
 - exact .__ selector will return this (rootElement) directly
-- [B] or [An+B] will replace to :nth-of-type(An+B) A is 0 as default
-- [-B] or [An-B] will replace to :nth-last-of-type(An+B) A is 0 as default
+- [An+B] or [B] will replace to :nth-of-type(An+B) A is 0 as default
+- [An-B] or [-B] will replace to :nth-last-of-type(An+B) A is 0 as default
 ## advansed:
 that work in $() and _click= (etc events) attribute binds
 - starting with '&lt;' selector will pass trailing string to parent jsx querySelector (eny times)
 - starting with '&gt;' selector will replace as :scope&gt; (Selectors Level 4)
 - trailing '$' will return jsx scope of finding element(s)
 - after '$' allowing to follow prop1.prop2...propN chain that will get this from jsx scope
-	- combining like '>$' will return all children array
+	- combining like '>$' will return first children (or select all in .removeChilds)
 	- '<$' return the parrent jsx scope
 	- '<$emit' return parrent.emit prop - in can use for binding event from arrtibute, or emit from js
 ## <a id=undefined></a>$(undefined)
 dummy
+- return Promise.all( this.loadChildrenNow() )
 - shortcut for update & upload new inserted [_class] components
 ```js
 //now can use for cheepy inline adds like:
-$( this.insertAdjacentHTML('beforeend',`<div class=${$}__element_modificator></div>`) )
+$(
+  this.insertAdjacentHTML('beforeend',`<div class=${$}__el_modifi></div>`),
+  this.insertAdjacentHTML('beforeend',`<div class=${$}__el_modifi></div>`),
+  this.insertAdjacentHTML('beforeend',`<div class=${$}__el_modifi></div>`),
+).then((...$loadedChildren)=>{})
 ```
+## <a id=computing></a>Redirection - $('selector', function):Promise&lt;[]&gt;
+for map selector results by another function
+```js
+$('>.__el_mod', this.removeChild).then(([mapped_result])=>{})
+```
+
+## <a id=chaining></a>Chaining $('selector', 'selector', ..., function):Promise&lt;[]&gt;
+(in test)
+- in this case every selector will recursively interpreate by current child
+- ".__" pattern and "$" same individual
 
 # <a id=api></a>Internal $. api methods
 (inherited from jsx supper class)
@@ -136,12 +152,11 @@ $( this.insertAdjacentHTML('beforeend',`<div class=${$}__element_modificator></d
 //	<div class=block__element_modificator>
 ```
 
-## <a id=removechilds></a>$.removeChilds(el | el[] | String)
+## <a id=removechildren></a>$.removeChildren(el | el[] | String)
 - remove from jsx all elements[]=$(selector)
-- !Important if you whan remove jsx by selector you need to select it with trailing '$' or you remove only HTML elements
 - dont throwing Exception instead of this
 - return deleted elements[] or null if no one deleted (for youre self check)
-## <a id=log></a>$.log(tabs:Number)
+## <a id=tree></a>$.tree(tabs:Number)
 debug
 - can be used for log recursive tree of virtual element binded scope (children & methods)
 
@@ -150,9 +165,8 @@ this can be redefine and/or add new ones
 - there are simply set $.youre_prop = youre_value;
 - there are public for eny other jsx componet witch have link to this scope
 - used for dom events bindins by parent, child, or component itself
-## <a id=dismount></a>$.dismount()
-optional
-- this will call before component is dismount by parent.removeChild()
+## <a id=dto></a>$({})
+- get dto (soon)
 
 # <a id=nested></a>Nested Components
 - Worked by static (recursive fetching files)
@@ -183,6 +197,19 @@ property getter in all case getters of $.property descriptor will run once on bi
 ```html
 <button _click=<$method></button>
 ```
+# <a id=slots></a>Slots
+## <a id=mainslot></a>Main slot
+You can add sub layaut inside jsx component, by default it will append at the begin of it
+  - the jsx binds will applied as they'll be add by component layout
+  - css injections will not be parsed by library features
+  - no js injections at all
+```html
+<div class=__template _class=jsx.htm>
+    Task-list <button _click=<$create>+</button>:
+</div>
+```
+ - add &lt;!--slot-main--&gt; for choose place for main slot (soon)
+
 # TODO Roadmap
 ## features
 - autoload dynamic children jsx by MutationObserver
@@ -191,6 +218,9 @@ property getter in all case getters of $.property descriptor will run once on bi
 	- [_class=jsx($handle:Emitter)] validate child by emiting interfaces
 - separate $() api to $ and $$ api for single multiple selects?
 	- $('className[]') return childs[], :fisrt/last-of-type converts to [0/-1] child
+- dismount for only root child
+- slots
+
 ## fixes
 ## optimization
 - fetch cache (for now just browser/server chache somehow)

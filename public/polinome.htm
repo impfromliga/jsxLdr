@@ -3,8 +3,15 @@
 
 <script>
     $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) )
-    $.del=e=> $.removeChilds('.__part[-1]') || $.parent.del($)
-    $.dismount=e=>alert('polinome.dismount called')
+    $.del=e=>$('.__part[-1]',this.removeChild).then(([ok])=>ok||$(`<$del`,this))
+    // $.del=e=> $.removeChildren('.__part[-1]') || $('<$del($)')
+    // $.del=e=> $.removeChildren('.__part[-1]') || $('<$del{last:$last}')
+    // $.del=e=> $.removeChildren('.__part[-1]') || $(`<<>.ch[${$.id}]$`,`.__el$draw`, x,y,w,h)
+    // $.del=e=> $.removeChildren('.__part[-1]') || $('<$',dto)
+await $('@MOUNT');
+    // yield-mount;
+await $('@DISMOUNT');
+    // yield-dismount; alert('dismount polinome')
 </script>
 
 <style>

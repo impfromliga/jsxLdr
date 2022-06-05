@@ -6,7 +6,7 @@
     <span class="__rtc">{bind_value}</span>
 <!--    <span class="__rtc"><x></x></span>-->
     <input _change=.polylist$change placeholder="input subjsx.background" />
-    <input type=checkbox _change=$checked> two-way bind
+    <input type=checkbox _change=$change> two-way bind
 </div>
 <div _class=polylist></div>
 <div class=footer _dblclick=.polylist$clear>footer:<sub>dblclick me to clear list...</sub></div>
@@ -19,7 +19,7 @@
 </style>
 
 <script>
-    $.checked=e=>alert('$.checked')
+    $.change=({target})=>alert('checkbox: '+ target.checked)
     $.log=e=> console.log($.tree())
     $.emitFromChild=e=>{
         console.log(e)
