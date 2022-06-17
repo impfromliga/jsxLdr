@@ -107,9 +107,10 @@ await $('@DISMOUNT') //resolved before parent removeChilds(this):Promise
 will work also in &lt;style&gt; section
 - selector for querySelector method will replace .__ leading pattern by root className (.foo in example)
 - exact .__ selector will return this (rootElement) directly
+- [] after query selector turn it to selectAll mode (dont work after advanced $ query part)
 - [An+B] or [B] will replace to :nth-of-type(An+B) A is 0 as default
 - [An-B] or [-B] will replace to :nth-last-of-type(An+B) A is 0 as default
-## advansed:
+## advanced:
 that work in $() and _click= (etc events) attribute binds
 - starting with '&lt;' selector will pass trailing string to parent jsx querySelector (eny times)
 - starting with '&gt;' selector will replace as :scope&gt; (Selectors Level 4)
@@ -153,7 +154,7 @@ $('>.__el_mod', this.removeChild).then(([mapped_result])=>{})
 ```
 
 ## <a id=removechildren></a>$.removeChildren(el | el[] | String)
-- remove from jsx all elements[]=$(selector)
+- remove from jsx element(s) by $(selector) //can use multiple by postfix []$
 - dont throwing Exception instead of this
 - return deleted elements[] or null if no one deleted (for youre self check)
 ## <a id=tree></a>$.tree(tabs:Number)
@@ -217,15 +218,13 @@ You can add sub layaut inside jsx component, by default it will append at the be
 - bind with arguments (lastprop extended parse)
     - [_class=jsx()] child constructor argument standart
     - [_class=jsx($handle:Emitter)] validate child by emiting interfaces
-- separate $() api to $ and $$ api for single multiple selects?
-    - $('className[]') return childs[], :fisrt/last-of-type converts to [0/-1] child
+- :fisrt/last-of-type selectors converts to [0/-1] $.child (if $ elem)
 - slots:named
 
 ## optimization
 - fetch cache (for now just browser/server chache somehow)
 
 ## fixes
-- FIX: multiple '<<<' parent selector not working
 - FIX: $.removeChildren at DOM auto insert rand <tbody> parent bug
 - FIX: scope garbage
 - FIX: dismount child recurse
