@@ -9,7 +9,7 @@
     $.add=e=> $(this.insertAdjacentHTML('beforeend',`<div _class=polinome></div>`) )
     $.del=$ch=> $.removeChildren($ch)|| $.removeChildren('>[-1]$')
     $.change=e=> this.style.background= e.target.value
-    $.clear=e=> $.removeChildren('>$') //selfchild (every) jsx
+    $.clear=e=> $.removeChildren('>[]$') //selfchild (every) jsx
 await $('@MOUNT');
     $.add();$.add();$.add();
 await $('@DISMOUNT');
