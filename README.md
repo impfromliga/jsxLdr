@@ -154,7 +154,7 @@ $('>.__el_mod', this.removeChild).then(([mapped_result])=>{})
 ```
 
 ## <a id=removechildren></a>$.removeChildren(el | el[] | String)
-- remove from jsx element(s) by \$(selector) can use multiple by postfix []$
+- remove from jsx element(s) by $ (selector) can use multiple by postfix []$
 - dont throwing Exception instead of this
 - return deleted elements[] or null if no one deleted (for youre self check)
 ## <a id=tree></a>$.tree(tabs:Number)
