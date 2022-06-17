@@ -85,13 +85,13 @@ export default function jsxldr($pa, $pa_children){
                 //console.log({"this":this,q});
                 return ALL?q:q[0];
             }if(typeof chain[0]=='function'){//Redirection (computing)
-                console.log("$(any, f() ): Promise<any>")
+                //.log("$(any, f() ): Promise<any>")
                 return Promise.all( q.map(async prop=> {
-                    console.log({prop, "chain[0]":chain[0]})
+                    //console.log({prop, "chain[0]":chain[0]})
                     return await chain[0].call(el, prop)
                 } ) )
             }else{ //if(typeof chain[0]=='string'){//chaining $ calls
-                console.log("any, `...`, ... ): Promise<any>")
+                //console.log("any, `...`, ... ): Promise<any>")
                 return Promise.all( q.map(async any=>   //TODO: instanse of $jsx
                     typeof any=='function'?await any(...chain):any= chain[0] //TODO: setting params
                 ) )
@@ -99,12 +99,12 @@ export default function jsxldr($pa, $pa_children){
         },{
             toString:{value:f=> jsxClass},
             removeChildren:{value:$chs=>{ //TODO: removeChildren
-                console.log(`${$}.removeChildren(${$chs})`,$chs);
+                //console.log(`${$}.removeChildren(${$chs})`,$chs);
                 if(typeof $chs=='string') $chs= [$($chs)].flat(); //will return $:[]
-                console.log({$chs});
+                //console.log({$chs});
                 if(!$chs)return null;
                 $chs=[$chs].flat()    //support for removeChildren([$ch1,$ch2,...,$chN]) same as removeChildren($ch)
-                console.log({$chs});
+                //console.log({$chs});
 
                 let dels=$chs.flatMap($ch=>{
                     let ch
@@ -128,7 +128,7 @@ export default function jsxldr($pa, $pa_children){
                     // console.log('removing ch',$ch, 'from parent', $ch.parentElement);
                     // try{return[$ch.parentElement.removeChild($ch)]}catch{return[]}
                 })
-                console.log({dels});
+                //console.log({dels});
                 return dels.length?dels:null
             }},
             //option debug method: //TODO: scope garbage collect
