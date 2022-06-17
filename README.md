@@ -212,21 +212,29 @@ You can add sub layaut inside jsx component, by default it will append at the be
 
 # TODO Roadmap
 ## features
+- default classname as file name if set the path with sub folders
 - autoload dynamic children jsx by MutationObserver
-- bind with arguments
-	- [_class=jsx()] child constructor argument standart
-	- [_class=jsx($handle:Emitter)] validate child by emiting interfaces
+- bind with arguments (lastprop extended parse)
+    - [_class=jsx()] child constructor argument standart
+    - [_class=jsx($handle:Emitter)] validate child by emiting interfaces
 - separate $() api to $ and $$ api for single multiple selects?
-	- $('className[]') return childs[], :fisrt/last-of-type converts to [0/-1] child
-- dismount for only root child
-- slots
+    - $('className[]') return childs[], :fisrt/last-of-type converts to [0/-1] child
+- slots:named
 
-## fixes
 ## optimization
 - fetch cache (for now just browser/server chache somehow)
 
+## fixes
+- FIX: multiple '<<<' parent selector not working
+- FIX: $.removeChildren at DOM auto insert rand <tbody> parent bug
+- FIX: scope garbage
+- FIX: dismount child recurse
+- FIX: performance of default multiple selector
+
 ## moot features
 ```js
+$('@customEvent').then(callback) //Promise form for once emitting
+$('@customEvent', callback)		//callback form for continuous
 $({}) //one pass set component scope
 f[Symbol.toStringTag] //detect async function binding (and then update)
 f=>Promise[] //runtime detect Promise or Promise[] for update when resolve

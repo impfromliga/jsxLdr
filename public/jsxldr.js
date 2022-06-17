@@ -39,13 +39,15 @@ export default function jsxldr($pa, $pa_children){
             // $('.__'):this    //used in css loader
             if(q=='.__')return el;                        //shortcut $('.__') for return this dom element
             //<< TODO: comma separated multiple selectors and/or commas between argument params
-            let[sel,scope]=q.split(/\$(?=[^\]]*$)/)
+            let[sel,scope]=typeof q=='string'?q.split(/\$(?=[^\]]*$)/):['','']
             // console.log({sel,scope});
             if(scope!=undefined)sel+='[jsx]';
             let _el=el;
             // $(`<) parentElement query target replace (may multiple)
-            while (sel[0] == '<') [_el, sel] = [el.parentElement, sel.slice(1)]; //switch to parent(s) querySelector
+            while (sel[0] == '<')//switch to parent(s) querySelector
+                [_el,sel]=[_el.parentElement,sel.slice(1)]
             // $(`<$): if no selector part - just return jsx (or some jsx parent)
+            const ALL=sel!=(sel=sel.replace('[]',''));//selectorAll
             if(sel=='[jsx]')q=[_el]
             // $(`<$>.ch): > shortcut for :scope> in selector
             else{
@@ -79,17 +81,17 @@ export default function jsxldr($pa, $pa_children){
             }
             // console.log('scoped:',q)
             if(!chain.length){
-            //console.log("$(any):DOM|$|prop        //selector only - return sync")
+                //console.log("$(any):DOM|$|prop        //selector only - return sync")
                 //console.log({"this":this,q});
-                return this>0?q:q[0];
+                return ALL?q:q[0];
             }if(typeof chain[0]=='function'){//Redirection (computing)
-            console.log("$(any, f() ): Promise<any>")
+                console.log("$(any, f() ): Promise<any>")
                 return Promise.all( q.map(async prop=> {
                     console.log({prop, "chain[0]":chain[0]})
                     return await chain[0].call(el, prop)
                 } ) )
             }else{ //if(typeof chain[0]=='string'){//chaining $ calls
-            console.log("any, `...`, ... ): Promise<any>")
+                console.log("any, `...`, ... ): Promise<any>")
                 return Promise.all( q.map(async any=>   //TODO: instanse of $jsx
                     typeof any=='function'?await any(...chain):any= chain[0] //TODO: setting params
                 ) )
@@ -98,7 +100,7 @@ export default function jsxldr($pa, $pa_children){
             toString:{value:f=> jsxClass},
             removeChildren:{value:$chs=>{ //TODO: removeChildren
                 console.log(`${$}.removeChildren(${$chs})`,$chs);
-                if(typeof $chs=='string') $chs= $.call(true,$chs); //will return $:[]
+                if(typeof $chs=='string') $chs= [$($chs)].flat(); //will return $:[]
                 console.log({$chs});
                 if(!$chs)return null;
                 $chs=[$chs].flat()    //support for removeChildren([$ch1,$ch2,...,$chN]) same as removeChildren($ch)
