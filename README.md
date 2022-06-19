@@ -2,29 +2,30 @@
 MicroLoader for fancy jsx components
 
 0. [Deploy](#deploy) ([clone](#clone)/[install](#install)/[run](#run))
-1. [Integration](integration)
-	- [Connect the library](#connect)
-	- [Include youre components](#components)
+1. [Integration](#integration)
+    - [Connect the library](#connect)
+    - [Include youre components](#components)
 2. [Component syntax &lt;html&gt;](#syntax)
-	- [&lt;style&gt;](#style)
-	- [&lt;script&gt;](#script)
-3. [lifecycle](#lifecycle)
-4. [$ as selector](#selector)
-	- [Redirection (computing)](#computing)
-	- [Сhaining selectors](#chaining)
-5. [$ internal api (jsx supperclass)](#api)
-	- [$.toString()](#tostring)
-	- [$.removeChildren()](#removechildren)
-	- [$.tree()](#tree)
-6. [$ as jsx scope](#scope)
-	- [S({})](#dto)
-7. [Nested Components](#nested)
-8. [Bind](#bind)
-	- [events](#event)
-	- [extend from child](#extend)
-	- [emit to parent](#emit)
-9. [Slots](#slots)
-	- [main](#mainslot)
+    - [&lt;style&gt;](#style)
+    - [&lt;script&gt;](#script)
+3. [Component Constructor](#construct)
+4. [lifecycle](#lifecycle)
+5. [$ as selector](#selector)
+    - [Redirection (computing)](#computing)
+    - [Сhaining selectors](#chaining)
+6. [$ internal api (jsx supperclass)](#api)
+    - [$.toString()](#tostring)
+    - [$.removeChildren()](#removechildren)
+    - [$.tree()](#tree)
+7. [$ as jsx scope](#scope)
+    - [S({})](#dto)
+8. [Nested Components](#nested)
+9. [Bind](#bind)
+    - [events](#event)
+    - [extend from child](#extend)
+    - [emit to parent](#emit)
+10. [Slots](#slots)
+     - [main](#mainslot)
 
 # <a id=deploy></a>Deploy
 ## clone
@@ -47,11 +48,18 @@ npm run start
 ```
 ## <a id=components></a>include youre components
 ```html
-<div _class="foo:component.htm"></div>
+<div _class="name:path/component.ext"></div>
+<div class="native" _class="path/autoname.htm"></div>
+<?--same as-->
+<div _class="autoname"></div>
 ```
-- will init jsx load from component.htm to &lt;div class=foo&gt;
-- if some classes already set, class=.foo will be set by native element.classList.add()
-- deafault file extension is .htm it can be omited
+- load jsx from file "path/component.ext" to &lt;div class="name"&gt;
+- if exist native class, will do (".native").classList.add("autoname")
+- required single lexeme is filename only
+- file extension can be omitted, default was .htm
+- omitted classname was filename without path and extension 
+
+see more about pass arguments to [Component Constructor](#construct)
 # <a id=syntax></a>Component syntax
 ## &lt;html&gt;
 ```html
@@ -84,13 +92,27 @@ Compiled element will look like
 ## <a id=script></a>&lt;script&gt; section
 - will be wrapped to
 ```js
-function load($){
+function load($,arguments){
 	//wrapping section code
 }
 ```
 - function runs when DOM is loaded
 - this will applyed to rootElement ( .foo in example)
-- $ argument pass the patched query selector functionality and above component scope
+- $ pass the patched query selector functionality and above component scope
+- arguments pass from instantiator
+
+# <a id=construct></a>Construct syntax
+you can pass arguments to component scope by adding trailing bracets
+```html
+<div _class="name:path/component.htm(arguments)"></div>
+```
+- for now just as string, so you can use JSON for dynamic appending (parser will be standardized soon)
+then you can easy access it in component &lt;script&gt; section
+```html
+<script>
+	console.log('constructor arguments:',...arguments)
+</script>
+```
 # <a id=lifecycle></a>Lifecycle $('@STAGE')
 - init time is first time of running wrapped youre &lt;script&gt; section, so use top of it
 ```js
@@ -107,9 +129,9 @@ await $('@DISMOUNT') //resolved before parent removeChilds(this):Promise
 will work also in &lt;style&gt; section
 - selector for querySelector method will replace .__ leading pattern by root className (.foo in example)
 - exact .__ selector will return this (rootElement) directly
-- [] after query selector turn it to selectAll mode (dont work after advanced $ query part)
 - [An+B] or [B] will replace to :nth-of-type(An+B) A is 0 as default
 - [An-B] or [-B] will replace to :nth-last-of-type(An+B) A is 0 as default
+- [] at the and of css selector turn selectAll mode (must place before advanced $ query part)
 ## advanced:
 that work in $() and _click= (etc events) attribute binds
 - starting with '&lt;' selector will pass trailing string to parent jsx querySelector (eny times)
@@ -154,8 +176,8 @@ $('>.__el_mod', this.removeChild).then(([mapped_result])=>{})
 ```
 
 ## <a id=removechildren></a>$.removeChildren(el | el[] | String)
-- remove from jsx element(s) by selector can use multiple by postfix []$
-- dont throwing Exception instead of this
+- remove element(s) from jsx by selector. Can use multiple by postfix []$
+- dont throwing Exception, instead of this -
 - return deleted elements[] or null if no one deleted (for youre self check)
 ## <a id=tree></a>$.tree(tabs:Number)
 debug
@@ -213,24 +235,22 @@ You can add sub layaut inside jsx component, by default it will append at the be
 
 # TODO Roadmap
 ## features
-- default classname as file name if set the path with sub folders
-- autoload dynamic children jsx by MutationObserver
-- bind with arguments (lastprop extended parse)
-    - [_class=jsx()] child constructor argument standart
-    - [_class=jsx($handle:Emitter)] validate child by emiting interfaces
-- :fisrt/last-of-type selectors converts to [0/-1] $.child (if $ elem)
+- [_class=jsx(arguments)] parse arguments to standart
+  - [_class=jsx($handle:Emitter)] validate emiting interfaces
+- :fisrt/last-of-type selectors converts to [0/-1] \$.child (if \$ elem)
 - slots:named
 
 ## optimization
 - fetch cache (for now just browser/server chache somehow)
 
 ## fixes
-- FIX: $.removeChildren at DOM auto insert rand <tbody> parent bug
+- FIX: $.removeChildren at DOM auto insert rand &lt;tbody&gt; parent
+- FIX: performance of default multiple selector
 - FIX: scope garbage
 - FIX: dismount child recurse
-- FIX: performance of default multiple selector
 
 ## moot features
+- autoload dynamic children jsx by MutationObserver
 ```js
 $('@customEvent').then(callback) //Promise form for once emitting
 $('@customEvent', callback)		//callback form for continuous

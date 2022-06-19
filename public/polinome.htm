@@ -2,6 +2,8 @@
 <button class=__add _click=$add>+</button>
 
 <script>
+    console.log('constructor arguments:',...arguments)
+
     //$('@add').then(e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) ) )
     $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) )
     $.del=e=>$('.__part[-1]',this.removeChild).then(([ok])=>ok||$(`<$del`,this))
@@ -10,6 +12,7 @@
     // $.del=e=> $.removeChildren('.__part[-1]') || $(`<<>.ch[${$.id}]$`,`.__el$draw`, x,y,w,h)
     // $.del=e=> $.removeChildren('.__part[-1]') || $('<$',dto)
 await $('@MOUNT');
+    // console.log('@MOUNT',{param});
     // yield-mount;
 await $('@DISMOUNT');
     // yield-dismount; alert('dismount polinome')

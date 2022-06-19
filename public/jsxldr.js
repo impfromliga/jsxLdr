@@ -19,9 +19,15 @@ export default function jsxldr($pa, $pa_children){
     return [].slice.call(pa.querySelectorAll(`[_class]`)).map(async el=>{
         let _id= I++;
         let jsxldrAttr= el.getAttribute('_class');
-        let[,jsxClass,href,ext]=/(?:([^:]*):)?([^:]+?)(\.[^.]*)?$/.exec(jsxldrAttr)??[]
-        jsxClass??=href; href+=ext??='.htm';
-        if(!href || !jsxClass || /\./.test(jsxClass))return;
+        let[,jsxClass,href,ext,brace,_arguments]=
+        /(?:([^:(]*):)?([^:(]+?)(\.[^.(]*)?(?:([{(])(.*?)[)}]?)?$/.exec(jsxldrAttr)??[]
+        _arguments=[_arguments]; //TODO: parse
+        if(!(href+=ext??='.htm'))return console.error({jsxldrAttr}); //check & default .htm
+        // is jsxClass valid className
+        [,jsxClass]=/(?:^|\/)(-?[_a-zA-Z]+[_a-zA-Z0-9 -]*)($|\.)/.exec(jsxClass??href)??
+            [console.warn({jsxldrAttr,random:_id}),'random'+_id];
+        console.log({jsxClass, href, ext, _arguments});
+
         el.classList.add(jsxClass); el.setAttribute('jsx',_id);
         el.removeAttribute('_class');
         const _children={};
@@ -35,7 +41,8 @@ export default function jsxldr($pa, $pa_children){
             if(q===undefined) return Promise.all(jsxldr.call(el,$,_children)) //shortcut $() for refresh this
 
             // if(typeof q=='object')return Object.assign(init,q);
-            if(q[0]=='@')return life[q]
+            // if(q=='@'){chain[0]?.(_arguments);return[_arguments]}
+            if(q[0]=='@') return life[q]
             // $('.__'):this    //used in css loader
             if(q=='.__')return el;                        //shortcut $('.__') for return this dom element
             //<< TODO: comma separated multiple selectors and/or commas between argument params
@@ -147,7 +154,9 @@ export default function jsxldr($pa, $pa_children){
             let {0:script,2:js,index}=/<script>(\n|\r)*((.|\n|\r)*?)<\/script>/.exec(str)??{0:0,2:0,index:0};
             //js set
             // new Function('$',js).call(el,$)
-            new (Object.getPrototypeOf(async f=>f).constructor)('$',js).call(el,$)
+            new (Object.getPrototypeOf(async f=>f).constructor)('$','arguments',
+                // `if(constructor)$('@NEW').then(constructor);`+
+                js).call(el,$,_arguments)
             // new Function('$','mount','dismount',js).call(el,$,1,2)
             //(L=new (Object.getPrototypeOf(function*(){}).constructor)('$','mount','dismount',js).call(el,$,1,2)).next()
 
@@ -157,7 +166,6 @@ export default function jsxldr($pa, $pa_children){
             let htm=str.replace(style,'').trim();
             if(css)htm+=`\n<style>\n${css}</style>`;
             el.insertAdjacentHTML('beforeend',htm);
-            // el.innerHTML+=htm;
             //bind jobs:
             let bindlate=[].slice.call(el.querySelectorAll(E.map(e=>`[${e}]`).join(',')));
             //await load nested:
@@ -168,17 +176,15 @@ export default function jsxldr($pa, $pa_children){
                 E.forEach(ev=>{
                     let bind= ch.getAttribute(ev) ;
                     if(!bind)return;else ch.removeAttribute(ev);
-                    //TODO: by $ scope
-                    bind=$(bind) //best 1st ?
-                    if(!bind)return console.error({ch,bind},Error('bind'));
-                    // console.log(`${ch}.on`+ev.slice(1),'BINDED',bind)
-                    ch['on'+ev.slice(1)]=bind;
+                    //TODO: by $ scope //best 1st ?
+                    (ch['on'+ev.slice(1)]=$(bind)||console.error({ch,bind},Error('bind')))
+                        &&console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
                 })
             })
         })
         // L.next()
         // $('@mount')
-        life.MOUNT()
+        life.MOUNT?.()
         return $;
     })
 }
