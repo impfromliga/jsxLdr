@@ -101,18 +101,6 @@ function load($,arguments){
 - $ pass the patched query selector functionality and above component scope
 - arguments pass from instantiator
 
-# <a id=construct></a>Construct syntax
-you can pass arguments to component scope by adding trailing bracets
-```html
-<div _class="name:path/component.htm(arguments)"></div>
-```
-- for now just as string, so you can use JSON for dynamic appending (parser will be standardized soon)
-then you can easy access it in component &lt;script&gt; section
-```html
-<script>
-	console.log('constructor arguments:',...arguments)
-</script>
-```
 # <a id=lifecycle></a>Lifecycle $('@STAGE')
 - init time is first time of running wrapped youre &lt;script&gt; section, so use top of it
 ```js
@@ -124,6 +112,21 @@ await $('@DISMOUNT') //resolved before parent removeChilds(this):Promise
   //dismount for now only for root child (would be upgraded soon)
 </script>
 ```
+# <a id=construct></a>Construct syntax
+as you see above the root level of the &lt;script&gt; section exactly is init
+- so access the construct arguments was the same as in native js function scope
+```html
+<script>
+	console.log('constructor arguments:',...arguments)
+</script>
+```
+
+for pass arguments from instantiator add the trailing bracets in _class argument
+```html
+<div _class="name:path/component.htm(argument)"></div>
+```
+- for now it just as string, so you can use JSON for dynamic appending (parser will be standardized soon)
+
 # <a id=selector></a>$('.query.selector')
 ## basic features:
 will work also in &lt;style&gt; section
@@ -235,6 +238,7 @@ You can add sub layaut inside jsx component, by default it will append at the be
 
 # TODO Roadmap
 ## features
+- $({}) dto standart
 - [_class=jsx(arguments)] parse arguments to standart
   - [_class=jsx($handle:Emitter)] validate emiting interfaces
 - :fisrt/last-of-type selectors converts to [0/-1] \$.child (if \$ elem)
