@@ -8,24 +8,24 @@ MicroLoader for fancy jsx components
 2. [Component syntax &lt;html&gt;](#syntax)
     - [&lt;style&gt;](#style)
     - [&lt;script&gt;](#script)
-3. [Component Constructor](#construct)
-4. [lifecycle](#lifecycle)
-5. [$ as selector](#selector)
+3. [Lifecycle](#lifecycle)
+   - [Component Constructor](#construct)
+4. [$ as selector](#selector)
     - [Redirection (computing)](#computing)
     - [Сhaining selectors](#chaining)
-6. [$ internal api (jsx supperclass)](#api)
+5. [$ internal api (jsx supperclass)](#api)
     - [$.toString()](#tostring)
     - [$.removeChildren()](#removechildren)
     - [$.tree()](#tree)
-7. [$ as jsx scope](#scope)
+6. [$ as jsx scope](#scope)
     - [S({})](#dto)
-8. [Nested Components](#nested)
-9. [Bind](#bind)
+7. [Nested Components](#nested)
+8. [Bind](#bind)
     - [events](#event)
     - [extend from child](#extend)
     - [emit to parent](#emit)
-10. [Slots](#slots)
-     - [main](#mainslot)
+9. [Slots](#slots)
+    - [main](#mainslot)
 
 # <a id=deploy></a>Deploy
 ## clone
@@ -112,12 +112,17 @@ await $('@DISMOUNT') //resolved before parent removeChilds(this):Promise
   //dismount for now only for root child (would be upgraded soon)
 </script>
 ```
-# <a id=construct></a>Construct syntax
+## <a id=construct></a>Construct syntax
 as you see above the root level of the &lt;script&gt; section exactly is init
-- so access the construct arguments was the same as in native js function scope
+
+so access the construct arguments was the same as in native js function scope
+- it allows you to reduce this calling, and you can set the variables direct.
+All of them anyway will scoped. This shorthand thought to be quite acceptable for tini loader.
+Whatever you type pure architecture with concise code of components it won't be hard to keep reduced scope clear too.
+And just look how it simply clear:
 ```html
 <script>
-	console.log('constructor arguments:',...arguments)
+	console.log(arguments)
 </script>
 ```
 
