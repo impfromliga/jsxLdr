@@ -172,6 +172,28 @@ $('>.__el_mod', this.removeChild).then(([mapped_result])=>{})
 - in this case every selector will recursively interpreate by current child
 - ".__" pattern and "$" same individual
 
+### Event-Selector-Handle:
+```html
+<a href="home"></a>
+<a href="products"></a>
+<a href="contacts"></a>
+<script>
+$('@MOUNT',`[href="${arguments}"]`,el=>el.className='on')
+//this will await '@MOUNT' event
+//then select by tamplated string applying the arguments passed from instantiator
+//then natively set selected element className to 'on'
+</script>
+<style>.on{color:green}</style>
+```
+### Selector[]-EachHandle
+you can select multiple, then pass the callback, and it would map each find elemen. The results was Promisyfi.all, so it can be async
+```js
+$('@DISMOUNT',`.__header, .__content, .__footer[]`, each=>each.value)
+.then(console.log.bind(0,'Dismounted:'))
+
+$('@DISMOUNT',`.__header, .__content, .__footer[]$`, $each=>$each.save() )
+.then(console.log.bind(0,'All saving:')) //
+```
 # <a id=api></a>Internal $. api methods
 (inherited from jsx supper class)
 - this methods are reserved and dont iterable by for / forEach / Object.keys()
@@ -207,8 +229,9 @@ this can be redefine and/or add new ones
 # <a id=bind></a>Bind events
 You can force config const eventTypes to extend library by other native DOM events, but some may need extra checks. For now config set supporting for following:
 - click
-- change
 - dblclick
+- change
+- input
 
 property getter in all case getters of $.property descriptor will run once on binding
 ## <a id=event></a>bind event to self method
@@ -243,10 +266,13 @@ You can add sub layaut inside jsx component, by default it will append at the be
 
 # TODO Roadmap
 ## features
-- $({}) dto standart
-- [_class=jsx(arguments)] parse arguments to standart
-  - [_class=jsx($handle:Emitter)] validate emiting interfaces
-- :fisrt/last-of-type selectors converts to [0/-1] \$.child (if \$ elem)
+- parent &lt; selector at different position
+- mixed chaining rules standartize
+- $({}) dto standartize
+- _class=jsx(arguments) parse arguments standartize
+  - _class=jsx($handle:Emitter) validate emiting interfaces
+- inline binds in event attributes like '<$parentMethod($)'
+- :fisrt/last-of-type selectors converts to \[0/-1] \$.child (if \$ elem)
 - slots:named
 
 ## optimization

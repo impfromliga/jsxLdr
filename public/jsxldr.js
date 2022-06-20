@@ -1,11 +1,11 @@
 // (function(){
 let I=0;
 const Z= {};
-const E=['_click','_dblclick','_change'];
+const E=['_click','_dblclick','_change','_input'];
 const L=['MOUNT','DISMOUNT']
 const P=(BEM,str)=>str
-    //basicly find ="__module in BEM classNames and .__module in CSS section
-    .replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
+    //basicly find ='__module in BEM classNames and .__module in CSS section
+    .replace(/((= |=|=\"|= \")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
     //option for replace [A] / [-A] to [0n+A] / [0n-A]
     .replace(/\[(\d*)\]/,`[0n+$1]`).replace(/\[-(\d*)\]/,`[0n-$1]`)
     //shortcut for :nth-of-type(An+B) by just [An+B] (or [nA+B] linter fine form)
@@ -91,17 +91,17 @@ export default function jsxldr($pa, $pa_children){
             }
             // console.log('scoped:',q)
             if(!chain.length){
-                //console.log("$(any):DOM|$|prop        //selector only - return sync")
-                //console.log({"this":this,q});
+                //console.log('$(any):DOM|$|prop        //selector only - return sync')
+                //console.log({'this':this,q});
                 return ALL?q:q[0];
             }if(typeof chain[0]=='function'){//Redirection (computing)
-                //.log("$(any, f() ): Promise<any>")
+                //.log('$(any, f() ): Promise<any>')
                 return Promise.all( q.map(async prop=> {
-                    //console.log({prop, "chain[0]":chain[0]})
+                    //console.log({prop, 'chain[0]':chain[0]})
                     return await chain[0].call(el, prop)
                 } ) )
             }else{ //if(typeof chain[0]=='string'){//chaining $ calls
-                //console.log("any, `...`, ... ): Promise<any>")
+                //console.log('any, `...`, ... ): Promise<any>')
                 return Promise.all( q.map(async any=>   //TODO: instanse of $jsx
                     typeof any=='function'?await any(...chain):any= chain[0] //TODO: setting params
                 ) )
