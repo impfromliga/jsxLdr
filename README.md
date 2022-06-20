@@ -251,6 +251,7 @@ You can add sub layaut inside jsx component, by default it will append at the be
 
 ## optimization
 - fetch cache (for now just browser/server chache somehow)
+  - deep instantiating constructor standart (single function with different calls)
 
 ## fixes
 - FIX: $.removeChildren at DOM auto insert rand &lt;tbody&gt; parent

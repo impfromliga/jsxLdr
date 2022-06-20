@@ -4,14 +4,14 @@ const Z= {};
 const E=['_click','_dblclick','_change'];
 const L=['MOUNT','DISMOUNT']
 const P=(BEM,str)=>str
-//basicly find ="__module in BEM classNames and .__module in CSS section
-.replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
-//option for replace [A] / [-A] to [0n+A] / [0n-A]
-.replace(/\[(\d*)\]/,`[0n+$1]`).replace(/\[-(\d*)\]/,`[0n-$1]`)
-//shortcut for :nth-of-type(An+B) by just [An+B] (or [nA+B] linter fine form)
-.replace(/\[((\d+)n|n(\d+))(\+\d+)?\]/g,`:nth-of-type($2$3n$4)`)
-//same for :nth-last-of-type(An+B) by [An-B]/[nA-B] (B must exist even if 0)
-.replace(/\[((\d+)n|n(\d+))-(\d+)?\]/g,`:nth-last-of-type($2$3n+$4)`)
+    //basicly find ="__module in BEM classNames and .__module in CSS section
+    .replace(/((= |=|="|= ")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
+    //option for replace [A] / [-A] to [0n+A] / [0n-A]
+    .replace(/\[(\d*)\]/,`[0n+$1]`).replace(/\[-(\d*)\]/,`[0n-$1]`)
+    //shortcut for :nth-of-type(An+B) by just [An+B] (or [nA+B] linter fine form)
+    .replace(/\[((\d+)n|n(\d+))(\+\d+)?\]/g,`:nth-of-type($2$3n$4)`)
+    //same for :nth-last-of-type(An+B) by [An-B]/[nA-B] (B must exist even if 0)
+    .replace(/\[((\d+)n|n(\d+))-(\d+)?\]/g,`:nth-last-of-type($2$3n+$4)`)
 
 export default function jsxldr($pa, $pa_children){
     // console.log({'this':this})
@@ -42,7 +42,10 @@ export default function jsxldr($pa, $pa_children){
 
             // if(typeof q=='object')return Object.assign(init,q);
             // if(q=='@'){chain[0]?.(_arguments);return[_arguments]}
-            if(q[0]=='@') return life[q]
+            if(q[0]=='@') {
+                if (!chain.length) return life[q]
+                else if (typeof chain[0] == 'string')return life[q].then(e=>$(...chain))
+            }
             // $('.__'):this    //used in css loader
             if(q=='.__')return el;                        //shortcut $('.__') for return this dom element
             //<< TODO: comma separated multiple selectors and/or commas between argument params
@@ -106,38 +109,38 @@ export default function jsxldr($pa, $pa_children){
         },{
             toString:{value:f=> jsxClass},
             removeChildren:{value:$chs=>{ //TODO: removeChildren
-                //console.log(`${$}.removeChildren(${$chs})`,$chs);
-                if(typeof $chs=='string') $chs= [$($chs)].flat(); //will return $:[]
-                //console.log({$chs});
-                if(!$chs)return null;
-                $chs=[$chs].flat()    //support for removeChildren([$ch1,$ch2,...,$chN]) same as removeChildren($ch)
-                //console.log({$chs});
+                    //console.log(`${$}.removeChildren(${$chs})`,$chs);
+                    if(typeof $chs=='string') $chs= [$($chs)].flat(); //will return $:[]
+                    //console.log({$chs});
+                    if(!$chs)return null;
+                    $chs=[$chs].flat()    //support for removeChildren([$ch1,$ch2,...,$chN]) same as removeChildren($ch)
+                    //console.log({$chs});
 
-                let dels=$chs.flatMap($ch=>{
-                    let ch
-                    if(typeof $ch=='function') {
-                        let i=_children[$ch].indexOf($ch)
-                        if(!~i)return [];else _children[$ch].splice(i,1);
-                        ch=$ch('.__')
-                    }else if($ch instanceof Element){
-                        ch=$ch;
-                    }else return[];
-                    let id=ch.getAttribute('jsx');
-                    // map[id]('>$destruct').map()
-                    // Z[id]('@dismount')
-                    // L.next()
-                    life.DISMOUNT() //TODO: chaining FIX
-                    delete($ch=Z[id])
-                    el.removeChild(ch);
-                    return $ch
+                    let dels=$chs.flatMap($ch=>{
+                        let ch
+                        if(typeof $ch=='function') {
+                            let i=_children[$ch].indexOf($ch)
+                            if(!~i)return [];else _children[$ch].splice(i,1);
+                            ch=$ch('.__')
+                        }else if($ch instanceof Element){
+                            ch=$ch;
+                        }else return[];
+                        let id=ch.getAttribute('jsx');
+                        // map[id]('>$destruct').map()
+                        // Z[id]('@dismount')
+                        // L.next()
+                        life.DISMOUNT() //TODO: chaining FIX
+                        delete($ch=Z[id])
+                        el.removeChild(ch);
+                        return $ch
 
-                    //return []
-                    // console.log('removing ch',$ch, 'from parent', $ch.parentElement);
-                    // try{return[$ch.parentElement.removeChild($ch)]}catch{return[]}
-                })
-                //console.log({dels});
-                return dels.length?dels:null
-            }},
+                        //return []
+                        // console.log('removing ch',$ch, 'from parent', $ch.parentElement);
+                        // try{return[$ch.parentElement.removeChild($ch)]}catch{return[]}
+                    })
+                    //console.log({dels});
+                    return dels.length?dels:null
+                }},
             //option debug method: //TODO: scope garbage collect
             // tree:{value:(t,i)=>`${'\t'.repeat(t)}${$}[${i|0}]:{\n${[
             //         ...Object.keys($).map(k => `${'\t'.repeat(-~t)}$${k}:${$[k]}`),
@@ -178,12 +181,13 @@ export default function jsxldr($pa, $pa_children){
                     if(!bind)return;else ch.removeAttribute(ev);
                     //TODO: by $ scope //best 1st ?
                     (ch['on'+ev.slice(1)]=$(bind)||console.error({ch,bind},Error('bind')))
-                        &&console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
+                    &&console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
                 })
             })
         })
         // L.next()
         // $('@mount')
+        // console.log('mount')
         life.MOUNT?.()
         return $;
     })
