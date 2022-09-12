@@ -3,15 +3,16 @@
 
 <script>
     console.log('constructor arguments:',...arguments)
-
+    let arg=arguments[0];
     //$('@add').then(e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) ) )
-    $.add=e=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=0></div>`) )
+    $.add=v=> $( this.insertAdjacentHTML('beforeend',`<div class=${$}__part><input value=${v|0}></div>`) )
     $.del=e=>$('.__part[-1]',this.removeChild).then(([ok])=>ok||$(`<$del`,this))
     // $.del=e=> $.removeChildren('.__part[-1]') || $('<$del($)')
     // $.del=e=> $.removeChildren('.__part[-1]') || $('<$del{last:$last}')
     // $.del=e=> $.removeChildren('.__part[-1]') || $(`<<>.ch[${$.id}]$`,`.__el$draw`, x,y,w,h)
     // $.del=e=> $.removeChildren('.__part[-1]') || $('<$',dto)
 await $('@MOUNT');
+    if(arg)$.add(arg);
     // console.log('@MOUNT',{param});
     // yield-mount;
 await $('@DISMOUNT');

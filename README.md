@@ -266,20 +266,49 @@ You can add sub layaut inside jsx component, by default it will append at the be
 
 # TODO Roadmap
 ## features
+selector standartize:
+- $({}) dto
+- mixed chaining rules:
+  - $(bool, ...) for assert feature. Reject can .catch(f=>)
+  - $('@mousedown','@mousemove').then(dragHandle)
+  - $('@PAUSE', '@RESUME', '@SUBSCRIBE', '@PIPE')
+
+arguments standartize:
 - parent &lt; selector at different position
-- mixed chaining rules standartize
-- $({}) dto standartize
-- _class=jsx(arguments) parse arguments standartize
-  - _class=jsx($handle:Emitter) validate emiting interfaces
-- inline binds in event attributes like '<$parentMethod($)'
+- mixed chaining rules
+  - '|' piping pattern - split the rules ('|=' will not separate)
+- `{q}|<$parentMethod`
+- _event='<$parentMethod{\$}' - carring arg \$ //dont pass this
+  - '$fn{arg}|<$parentMethod' - carring arg; on event call fn(arg,event); pipe
+  - '$fn()|<$parentMethod' - on bind call fn; then look what it return, to do:
+  - Promise '|<$parentMethod' - await Promise; then look what it return, to do:
+  - Function '|<$parentMethod' - on event will call fn(event); then pipe
+  - Bool '|<$parentMethod' - piping will active when bool assert
+    - '$.prop|<$parentMethod' - active when prop assert
+    - '$.assert()|<$parentMethod' - active if assert()
+    - '@alt|<$parentMethod' - assert event when holding alt key
+    - '@wait500|<$parentMathod' - event after timeout 500ms
+    - '@move50|<$parentMathod' - after mousemove more then 50px
+    - '@down|@move50|<$parentMathod' - after event, mouse down, move
+  - Date '|<$parentMethod' - keep event arg; wait the date; then pipe
+  - Array '|<$parentMethod' - map(pipe)
+  - Object '|<$parentMethod' - just pipe //if need for other types cover it
+- _class='className:jsx.htm(arguments)' - basic as string
+  - 'jsx($handle:Emitter)' validate emiting interfaces
+  - 'bool|className:jsx.htm(arguments)' - inline if templating
+ 
+css
 - :fisrt/last-of-type selectors converts to \[0/-1] \$.child (if \$ elem)
-- slots:named
+
+slots:named
 
 ## optimization
+- option clearing commets from jsx
 - fetch cache (for now just browser/server chache somehow)
   - deep instantiating constructor standart (single function with different calls)
 
 ## fixes
+- localize css scope for global selectors
 - FIX: $.removeChildren at DOM auto insert rand &lt;tbody&gt; parent
 - FIX: performance of default multiple selector
 - FIX: scope garbage

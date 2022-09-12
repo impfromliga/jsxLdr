@@ -1,7 +1,7 @@
 // (function(){
-let I=0;
-const Z= {};
-const E=['_click','_dblclick','_change','_input'];
+let I=0
+const Z= {}
+const E=['_click','_dblclick','_change','_input']
 const L=['MOUNT','DISMOUNT']
 const P=(BEM,str)=>str
     //basicly find ='__module in BEM classNames and .__module in CSS section
@@ -12,6 +12,7 @@ const P=(BEM,str)=>str
     .replace(/\[((\d+)n|n(\d+))(\+\d+)?\]/g,`:nth-of-type($2$3n$4)`)
     //same for :nth-last-of-type(An+B) by [An-B]/[nA-B] (B must exist even if 0)
     .replace(/\[((\d+)n|n(\d+))-(\d+)?\]/g,`:nth-last-of-type($2$3n+$4)`)
+const ARG=s=>/^(?:([^<{:]*):)?([^=<]*?)(\.[^.=<]*)?(?:<([^>]*)(?:>|>?$))?(?:=(.*))?$/.exec(s)??[];
 
 export default function jsxldr($pa, $pa_children){
     // console.log({'this':this})
@@ -19,14 +20,16 @@ export default function jsxldr($pa, $pa_children){
     return [].slice.call(pa.querySelectorAll(`[_class]`)).map(async el=>{
         let _id= I++;
         let jsxldrAttr= el.getAttribute('_class');
-        let[,jsxClass,href,ext,brace,_arguments]=
-        /(?:([^:(]*):)?([^:(]+?)(\.[^.(]*)?(?:([{(])(.*?)[)}]?)?$/.exec(jsxldrAttr)??[]
+
+        let[,jsxClass,href,ext,_arguments]=ARG(jsxldrAttr)
+        ///(?:([^:(]*):)?([^:(]+?)(\.[^.(]*)?(?:([{(])(.*?)[)}]?)?$/.exec(jsxldrAttr)??[]
         _arguments=[_arguments]; //TODO: parse
-        if(!(href+=ext??='.htm'))return console.error({jsxldrAttr}); //check & default .htm
+        jsxClass??=href
+        if(!(href+=ext??'.htm'))return console.error({jsxldrAttr}); //check & default .htm
         // is jsxClass valid className
-        [,jsxClass]=/(?:^|\/)(-?[_a-zA-Z]+[_a-zA-Z0-9 -]*)($|\.)/.exec(jsxClass??href)??
+        [,jsxClass]=/(?:^|\/)(-?[_a-zA-Z][-_a-zA-Z0-9]*)$/.exec(jsxClass)??
             [console.warn({jsxldrAttr,random:_id}),'random'+_id];
-        console.log({jsxClass, href, ext, _arguments});
+        //console.log({jsxClass, href, ext, _arguments});
 
         el.classList.add(jsxClass); el.setAttribute('jsx',_id);
         el.removeAttribute('_class');
@@ -49,7 +52,7 @@ export default function jsxldr($pa, $pa_children){
             // $('.__'):this    //used in css loader
             if(q=='.__')return el;                        //shortcut $('.__') for return this dom element
             //<< TODO: comma separated multiple selectors and/or commas between argument params
-            let[sel,scope]=typeof q=='string'?q.split(/\$(?=[^\]]*$)/):['','']
+            let[,sel,scope]=typeof q=='string'?/^([^\$]*)(?:\$([^\]]*))?$/.exec(q):[,'','']
             // console.log({sel,scope});
             if(scope!=undefined)sel+='[jsx]';
             let _el=el;
@@ -66,8 +69,7 @@ export default function jsxldr($pa, $pa_children){
                 // console.log({sel, scope});
                 // console.log(`${$}.querySelectorAll(${q})`);
                 //TODO: performance of default multiple
-                // q = Array.from(_el['querySelector'+(this>0?'All':'')](q))
-                q = Array.from(_el.querySelectorAll(q))
+                q=ALL?Array.from(_el.querySelectorAll(q)):(q=_el.querySelector(q))?[q]:[]
             }
             // console.log('=',q);
             // $(`<$>.ch$) resolving jsx from heap by jsx argument
@@ -77,15 +79,34 @@ export default function jsxldr($pa, $pa_children){
             })
             // $(`<$>.ch$` )
             if(scope){
-                // $(`<$>.ch$a.b.c`)
-                scope = scope.split('.')
+                // $(`<$>.ch$a.b.c(args)`)
+                let[,,chProps,chLast='',bArgs,assign]=ARG(scope)
+                chProps = (chProps+chLast).split('.')
+
+                bArgs=bArgs!=undefined?[bArgs]:[]
                 // let[lastProp,args]= //.exec(scope.pop()); //TODO: split [lastprop,args]
                 // console.log({q,'typeof q':typeof q,'q.flatMap':q.flatMap})
+                // if(bArgs){
+                //     bArgs=bArgs.split(',').map(arg=>{
+                //         if('{'==arg[0]) {
+                //         }else if('`'==arg[0]){
+                //         }else if(/^['"`]/.exec(arg)){
+                //
+                //         }
+                //     })
+                // }
                 q = q.flatMap(prop => {
                     // resolving prop(.prop(.prop(...)))
-                    for (let p of scope) prop = prop?.[p];
+                    for (let p of chProps) prop = prop?.[p];
                     //>> TODO: process [lastprop,args]
                     // https://developer.mozilla.org/ru/docs/Web/CSS/Attribute_selectors
+                    if(!prop) return []
+                    if(bArgs??bArgs.length){
+                        prop=prop.bind(el,...bArgs)
+                    }
+                    // if(assign){
+                    //     prop
+                    // }
                     return prop ? [prop] : []
                 })
             }
@@ -177,11 +198,12 @@ export default function jsxldr($pa, $pa_children){
             bindlate.forEach(ch=>{
                 if(!ch.parentElement)return //console.log('bind parent=null', {ch});
                 E.forEach(ev=>{
-                    let bind= ch.getAttribute(ev) ;
-                    if(!bind)return;else ch.removeAttribute(ev);
+                    let bin= ch.getAttribute(ev) ;
+                    if(!bin)return;else ch.removeAttribute(ev);
                     //TODO: by $ scope //best 1st ?
-                    (ch['on'+ev.slice(1)]=$(bind)||console.error({ch,bind},Error('bind')))
-                    &&console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
+                    let bind = $(bin);
+                    (ch['on'+ev.slice(1)]=bind||console.error({el,ch,bin,bind},Error('bind')))
+                    //&&console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
                 })
             })
         })

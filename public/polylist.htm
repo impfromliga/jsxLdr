@@ -1,13 +1,17 @@
-<button class="__emiter" _click=<$emitFromChild><$emitFromChild</button>
+<button class="__emiter" _click=<$function:emitFromChild<`myId:{$id}`,`arg`><$emitFromChild</button>
 
-<div class=_mod1 _click="$TestErrorBindEmpty(constructorParam)">_mod1</div>
-<div _class="TestError:Load.Empty(constructorParam)">TestError</div>
+<div class=_mod1 _click="$TestErrorBindEmpty<constructorParam">_mod1</div>
+<div _class="TestError:Load.Empty<constructorParam">TestError</div>
 <div class=__element2>__element2 emitFromChild</div>
 <!--default_slot-->
 <div class=___mod3>___mod3</div>
 
 <script>    // $({})
-    $.add=e=> $(this.insertAdjacentHTML('beforeend',`<div _class="polinome('testparam ${Math.random()}')"></div>`) )
+    $.add=arg=>{
+        console.log('add',{arg});
+        if(typeof arg!='string')arg='';
+        $(this.insertAdjacentHTML('beforeend',`<div _class=polinome<${arg}></div>`) )
+    }
     $.del=$ch=> $.removeChildren($ch)|| $.removeChildren('>[-1]$')
     $.change=e=> this.style.background= e.target.value
     $.clear=e=> $.removeChildren('>[]$') //selfchild (every) jsx
