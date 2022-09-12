@@ -48,14 +48,15 @@ npm run start
 ```
 ## <a id=components></a>include youre components
 ```html
-<div _class="name:path/component.ext"></div>
+<div _class="name:path/component.ext<constructorArgStaticString>"></div>
 <div class="native" _class="path/autoname.htm"></div>
 <?--same as-->
 <div _class="autoname"></div>
 ```
 - load jsx from file "path/component.ext" to &lt;div class="name"&gt;
 - if exist native class, will do (".native").classList.add("autoname")
-- required single lexeme is filename only
+- can pass string to constructor by adding &lt;text&gt; (JSON passing soon)
+- required only one lexeme is filename only
 - file extension can be omitted, default was .htm
 - omitted classname was filename without path and extension 
 
@@ -126,9 +127,9 @@ And just look how it simply clear:
 </script>
 ```
 
-for pass arguments from instantiator add the trailing bracets in _class argument
+for pass arguments from instantiator add the trailing &lt;brackets&gt; in _class argument
 ```html
-<div _class="name:path/component.htm(argument)"></div>
+<div _class="name:path/component.htm<argument>"></div>
 ```
 - for now it just as string, so you can use JSON for dynamic appending (parser will be standardized soon)
 
@@ -164,8 +165,20 @@ $(
 ## <a id=computing></a>Redirection - $('selector', function):Promise&lt;[]&gt;
 for map selector results by another function
 ```js
-$('>.__el_mod', this.removeChild).then(([mapped_result])=>{})
+$('>.__el_mod', this.removeChild).then(([...mapped_result])=>{})
 ```
+
+## <a id=running></a>running - $('selector', ...args):Promise&lt;[]&gt;
+if selecting a function(s) will call it with args
+```js
+$('>.__el$method', 1,2,3).then(([...mapped_result])=>{})
+$('>.__el$method<bindArg>')
+//same as:
+$('>.__el$method').bind(this,'bindArg')
+```
+- you can bind some static ars first of dynamic arg call
+- and it will work in [Bind events](#event) binding
+- and in [Component Constructor](#construct) args binding too
 
 ## <a id=chaining></a>Chaining $('selector', 'selector', ..., function):Promise&lt;[]&gt;
 (in test)
@@ -243,14 +256,20 @@ property getter in all case getters of $.property descriptor will run once on bi
 ```
 ## <a id=extend></a>extend call child method
 ```html
-<button _click=.sub$method></button>
 <div _class=sub:subcomponent.htm></div>
+<button _click=.sub$method></button>
+<button _click=".sub$method<Text>"></button>
 ```
 - click will call $.method of .sub element from subcomponent.htm &lt;script&gt; section
+- can bind arg first event will calling 
 ## <a id=emit></a>emit event to parent
 ```html
 <button _click=<$method></button>
+//with bind static argument "Text" first, before event will be called
+<button _click=<$method<Text></button>
 ```
+- emiting to parrent even more useful to prebind some child data
+
 # <a id=slots></a>Slots
 ## <a id=mainslot></a>Main slot
 You can add sub layaut inside jsx component, by default it will append at the begin of it
@@ -303,14 +322,13 @@ css
 slots:named
 
 ## optimization
-- option clearing commets from jsx
+- option clearing comments from jsx
 - fetch cache (for now just browser/server chache somehow)
   - deep instantiating constructor standart (single function with different calls)
 
 ## fixes
 - localize css scope for global selectors
 - FIX: $.removeChildren at DOM auto insert rand &lt;tbody&gt; parent
-- FIX: performance of default multiple selector
 - FIX: scope garbage
 - FIX: dismount child recurse
 
