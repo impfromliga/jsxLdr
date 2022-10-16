@@ -1,0 +1,112 @@
+<button class=__upload _click=$uploadTask disabled>UPLOAD 🡅</button>
+<button class=__stop _click=$stopTask disabled>STOP ⏹</button>
+<button class=__run _click=$runTask disabled>RUN ⮞</button>
+<b class=__name></b>
+<span class=__stage></span>
+<textarea class=__textarea type=text _input=$needSave disabled placeholder="create task & download code">
+</textarea>
+<button class=__reload _click=$regetWork disabled>REGET 🡇</button>
+<button class=__reload _click=$dropAllTaskWorks>DROP ALL ✖</button>
+
+<div class="__worklist"></div>
+
+<style>
+.__upload:not([disabled]){color:red}
+.__stop:not([disabled]){
+    transition: background-color ease-out 10s;
+    background-color: blue;
+}
+/*.__ button{}*/
+.__name{}
+.__textarea{
+    width:calc(100% - 1em);height:40vh;
+    padding:0;border:0;outline:1px solid;
+    color:#ffdda8;resize:none;padding:.5em;
+    font:1em "Consolas";background:local
+    linear-gradient(#27241f 50%,#1e1b10 50%)repeat 0 .66em/9%2.283em;
+}
+.__textarea:disabled{background:#ccc;color:#19a56c}
+
+
+.work{
+    width:calc(100% - 1em);
+    padding:0;border:0;outline:1px solid;
+    color:#ffdda8;resize:none;padding:.5em;
+    overflow: auto;
+    font:1em "Consolas";background:local
+    linear-gradient(#27241f 50%,#1e1b10 50%)repeat 0 .66em/9%2.283em;
+}
+.work:not(:first-of-type){height:30vh}
+.work.disabled{background:#ccc;color:#19a56c}
+.work.disabled:empty:before{content:"nothing yet";color:#666}
+</style>
+<script>
+    const STAGE=Object.freeze({
+        CREATED:0,
+        IN_PROGRESS:0xf0, BEGIN:0x10, RUNNING: 0x20,
+        IN_HALTING:0xf00, HALT:0x100,
+        DONE:0x1000
+    });
+    const _STAGE=Object.fromEntries(Object.entries(STAGE).map(([k,v])=>[v,k]))
+    $.loadTask=(e)=>{
+        let id=e?.id??$.id;
+        if(!id)return;
+        if(id!=$.id) $('.__worklist').innerHTML=''
+        fetch(`api/scheduler/${id}`).then(res=>res.json()).then(setTask)
+    }
+    function setTask(taskDto){
+        $('.__name').innerText=`"${taskDto.name}"`;
+        $.id=taskDto.id;
+        $('.__reload').removeAttribute('disabled');
+        $('.__textarea').value=taskDto.code;
+        $.needSave(false)
+        $('.__stage').innerText=_STAGE[taskDto.stage];
+        if(taskDto.stage&STAGE.IN_PROGRESS){ //lock changes & run twice
+            $('.__textarea, .__run[]', el=>el.setAttribute('disabled',''))
+            $('.__stop').removeAttribute('disabled')
+        }else{
+            $('.__textarea, .__run[]', el=>el.removeAttribute('disabled'))
+            $('.__stop').setAttribute('disabled','')
+        }
+    }
+
+    $.needSave=on=>{
+        if(on&&$.id) {
+            $('.__upload').removeAttribute('disabled')
+            $('.__run, .__stop[]', el=>el.setAttribute('disabled', ''))
+        }else{  //it already saved so
+            $('.__upload, .__stop[]', el=>el.setAttribute('disabled', ''))
+            $('.__run', el=>el.removeAttribute('disabled'))
+        }
+    }
+
+    $.uploadTask=f=>$.id&&fetch(`api/scheduler`,{method:"POST",headers:{'Content-Type': 'application/json'},
+        body:JSON.stringify({id:$.id,code:$('.__textarea').value})
+    }).then(res=>res.json()).then(taskDto=>{
+        if(taskDto.code)$('.__run').removeAttribute('disabled');
+        $.needSave(false)
+    })
+
+    $.runTask=f=>$.id&&fetch(`api/scheduler`,{method:"POST",headers:{'Content-Type': 'application/json'},
+        body:JSON.stringify({id:$.id,stage:STAGE.BEGIN})
+    }).then(res=>res.json()).then(setTask)
+    .finally(f=>{setTimeout($.regetWork,3000)})
+
+    $.stopTask=f=>$.id&&fetch(`api/scheduler`,{method:"POST",headers:{'Content-Type': 'application/json'},
+        body:JSON.stringify({id:$.id,stage:STAGE.HALT})
+    }).then(res=>res.json()).then(setTask)
+
+    $.regetWork=f=>$.id&&fetch(`api/scheduler/works/${$.id}`)
+    .then(res=>res.json()).then(works=>{
+        console.log({works})
+        $('.__worklist').innerHTML=works.reverse().map(work=>
+            `<pre class="work">${work.result}</pre>`
+        ).join('')
+    }).finally($.loadTask)
+
+    $.dropAllTaskWorks=f=>{
+        console.log('dropAllTaskWorks')
+        $.id&&fetch(`api/scheduler/works/${$.id}`,{method:"DELETE"})
+            .then(res=>res.json()).then(works=>$('.__worklist').innerHTML='')
+    }
+</script>

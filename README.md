@@ -59,8 +59,8 @@ npm run start
 - required only one lexeme is filename only
 - file extension can be omitted, default was .htm
 - omitted classname was filename without path and extension 
-
-see more about pass arguments to [Component Constructor](#construct)
+- _class names started with "__tpl\_" reserved for prefix late on parent loading
+- see more about pass arguments to [Component Constructor](#construct)
 # <a id=syntax></a>Component syntax
 ## &lt;html&gt;
 ```html
@@ -241,10 +241,10 @@ this can be redefine and/or add new ones
 
 # <a id=bind></a>Bind events
 You can force config const eventTypes to extend library by other native DOM events, but some may need extra checks. For now config set supporting for following:
-- click
-- dblclick
-- change
-- input
+- click, dblclick
+- change, input
+- dragstart, drop
+  - for now used manually <... ondragover=arguments[0].preventDefault()>
 
 property getter in all case getters of $.property descriptor will run once on binding
 ## <a id=event></a>bind event to self method
@@ -274,7 +274,7 @@ property getter in all case getters of $.property descriptor will run once on bi
 ## <a id=mainslot></a>Main slot
 You can add sub layaut inside jsx component, by default it will append at the begin of it
   - the jsx binds will applied as they'll be add by component layout
-  - css injections will not be parsed by library features
+  - css injections will not be parsed by library features (except _class __tpl\_)
   - no js injections at all
 ```html
 <div class=__template _class=jsx.htm>
@@ -282,6 +282,20 @@ You can add sub layaut inside jsx component, by default it will append at the be
 </div>
 ```
  - add &lt;!--slot-main--&gt; for choose place for main slot (soon)
+## <a id=tpl></a>Templates
+You can bind some template or sub layouts by naming classes element (BEM) as '__tpl_name'
+```html
+<div _class=jsx.htm>
+    <div class=__tpl_head>
+        <h1>Header</h1>
+    </div>
+    <div _class=__tpl_foot:footer.htm></div>
+</div>
+```
+- class & _class attr will prefix if it starts with __tpl\_ (ever if it add by parent layout)
+- _class attr will also fetch sub component file, so it can be nested too
+- names of templates provide by specified component
+- [class*="__tpl\_"]{display:none} is global default recommend
 
 # TODO Roadmap
 ## features
@@ -296,7 +310,7 @@ arguments standartize:
 - parent &lt; selector at different position
 - mixed chaining rules
   - '|' piping pattern - split the rules ('|=' will not separate)
-- `{q}|<$parentMethod`
+  - `{q}|<$parentMethod`
 - _event='<$parentMethod{\$}' - carring arg \$ //dont pass this
   - '$fn{arg}|<$parentMethod' - carring arg; on event call fn(arg,event); pipe
   - '$fn()|<$parentMethod' - on bind call fn; then look what it return, to do:
@@ -315,6 +329,7 @@ arguments standartize:
 - _class='className:jsx.htm(arguments)' - basic as string
   - 'jsx($handle:Emitter)' validate emiting interfaces
   - 'bool|className:jsx.htm(arguments)' - inline if templating
+  - _class='className:jsx.htm<Type|Type2|...|TypeN>' - typification of polymorph children 
  
 css
 - :fisrt/last-of-type selectors converts to \[0/-1] \$.child (if \$ elem)
@@ -331,7 +346,7 @@ slots:named
 - FIX: $.removeChildren at DOM auto insert rand &lt;tbody&gt; parent
 - FIX: scope garbage
 - FIX: dismount child recurse
-
+- FIX: finding patterns like [0] in not _dashedAttributes (done)
 ## moot features
 - autoload dynamic children jsx by MutationObserver
 ```js

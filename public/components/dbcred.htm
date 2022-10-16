@@ -1,0 +1,35 @@
+<span class="__notpl">
+<!--    <button class="__del">-</button>-->
+    <button class="__cut" _click="$cut">-</button>
+    <b class="__id">#</b>
+    <button class="__load-tables" _click="$loadTables">🡇</button>
+</span>
+<input type="text" class="__name" placeholder="name" _change="$upsert"/>
+<select class="__type" _change="$retype">
+    <option>postgres</option><option>mysql</option><option>mongo</option></select>
+:// <input type="text" class="__username" placeholder="username" _change="$upsert"/>
+: <input type="text" class="__password" placeholder="password" _change="$upsert"/>
+@ <input type="text" class="__host" placeholder="host" _change="$upsert" value="localhost"/>
+: <input type="text" class="__port" placeholder="port" _change="$upsert"/>
+/ <input type="text" class="__database" placeholder="database" _change="$upsert"/>
+<script>
+const KEY='name|type|username|password|host|port|database'.split('|');
+Object.defineProperty($,"dto",{
+    set:o=>Object.keys(o).forEach(k=>{
+        if(/^name|type|username|password|host|port|database$/.exec(k))$(`.${$}__${k}`).value=o[k]
+        else if('id'==k){
+            $(`.${$}__${k}`).innerText='#'+($.id=o[k]);
+            console.log({'$.id':$.id})
+        }
+    }),
+    get:f=>KEY.reduce((o,k)=>Object.assign(o,{[k]:$(`.${$}__${k}`).value}),{id:$.id})
+})
+$.retype=({target})=>{
+    let port=$('.__port');
+    port.value={mysql:3306,postgres:5432,mongo:27017}[target.value]
+    $.upsert(this);
+}
+$.upsert=e=>$.id&& $('<$upsert',$.dto)
+$.cut=e=>$('<$').cut($)
+$.loadTables=e=>$('<<.tablelist$').loadTables($.dto)
+</script>

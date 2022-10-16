@@ -1,0 +1,38 @@
+<div _class=__tpl_main:components/list.tpl.htm></div>
+<div class="__tpl_head">[head]</div>
+<div class="__tpl_item">[item]</div>
+<div class="__tpl_foot">[foot]</div>
+<div class="__contain" _dragstart=$drag ondragover=arguments[0].preventDefault() _drop=$drop></div>
+<script>
+    $.add=arg=>{
+        if(typeof arg!='string')arg='';
+        $($('.__contain').insertAdjacentHTML('beforeend',
+            `<div draggable=true class="${$}__item td-12" _class=polinome<${arg}></div>`))
+    }
+    $.del=$ch=> $.removeChildren($ch)|| $.removeChildren('>[-1]$')
+    $.clear=e=> $.removeChildren('>[]$') //selfchild (every) jsx
+
+    $.drag=({target})=>dragged=target //TODO: fix !global
+    $.drop=({target})=>$('.__contain').insertBefore(dragged,target)
+
+    await $('@MOUNT');
+    '123456'.split('').map($.add);
+</script>
+<style>
+    [class*="__tpl_"]{
+        color:#999;
+        display:none;
+    }
+    .__contain{
+        border:1px solid;
+        min-height:3em;
+        overflow: scroll;
+    }
+
+    .__item:hover{
+        background:#ff9;
+    }
+    .__item:active{
+        background: #fc9;
+    }
+</style>

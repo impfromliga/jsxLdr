@@ -1,0 +1,34 @@
+<span class="__notpl">
+    <button class="__del" _click="$delete">-</button>
+    <b class="__id">#</b>
+    <button class="__edit-task" _click="$editTask">🡇</button>
+</span>
+<input placeholder="name" _change="$upsert" class="__name" type="text" />
+<input type="date" _change="$upsert" class="__start" required />
+> <input type="date" _change="$upsert" class="__end" required />
+<input placeholder="tplName" _change="$upsert" class="__tpl" type="text" />
+<!--<div class="__meta">-->
+<!--    <span class="__meta-stage">stage:done</span>-->
+<!--    <span class="__meta-version">ver:1</span>-->
+<!--    <span class="__meta-log">log:save</span>-->
+<!--    <span class="__meta-priority">priority:date</span>-->
+<!--    <span class="__meta-soft-delete">trash:save</span>-->
+<!--    <span class="__meta-pipeling">trash:save</span>-->
+<!--</div>-->
+<script>
+    Object.defineProperty($,"dto",{
+        set:o=>Object.keys(o).forEach(k=>{
+            if(/^name|start|end|tpl$/.exec(k))$(`.${$}__${k}`).value=o[k];
+            else if(/^id$/.exec(k))$(`.${$}__${k}`).innerText='#'+($[k]=o[k]);
+        }),
+        get:f=>['name','start','end','tpl']
+        .reduce((o,k)=>Object.assign(o,{[k]:$(`.${$}__${k}`).value}),{id:$.id})
+    })
+    $.upsert=e=>$.id&& $('<$upsert',$.dto)
+
+    $.delete=e=>$('<$').delete($)
+    $.editTask=e=>{
+        console.log($('<$').editTask)
+        $('<$').editTask($)
+    }
+</script>

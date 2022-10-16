@@ -1,0 +1,17 @@
+<h1>Choose layout for test:</h1>
+<ol>
+    <li><a href="polinome.html">Polinome</a></li>
+    <li><a href="list.html">List</a></li>
+    <li><a href="scheduler.html">Scheduler</a></li>
+    <li><a href="scanner.html">Scanner</a></li>
+    <li><a href="files.html">Files</a></li>
+</ol>
+<style>
+    .__ ol{padding-left:1px;counter-reset:route;font-size:1.5em}
+    .__ li:before{counter-increment:route;content:counter(route)"."}
+    .__ li{display: inline;outline:1px solid;padding:.25em .5em}
+    .__ li.on{background:#cfc}
+</style>
+<script>
+$('@MOUNT',`li [href="${arguments}"]`,e=>e.parentElement.classList.add('on'))
+</script>

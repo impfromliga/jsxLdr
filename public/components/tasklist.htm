@@ -1,0 +1,54 @@
+<div class=__template _class=task:components/task>
+    Task-list <button _click=<$create>+</button>:
+</div>
+<style>
+    .__{border:1px solid #999}
+    .__template{background:#cdf;min-height:2em;}
+    .__>.task:not( .__template){
+        min-height:2em;
+        border-bottom:1px solid;
+    }
+    .__>.task[n2]{background:#ffe}
+    .__template .task__notpl{display:none}
+
+    .__ button{min-width:2em; margin:.25em .25em}
+    .task__id{width: 2em;display: inline-block;}
+    .task__start:invalid, .task__end:invalid{background:#f99}
+    .task__meta{display:inline-block}
+    [class*="task__meta-"]:before{content:'- '}
+</style>
+<script>
+    queueMicrotask(f=>fetch('api/scheduler').then(res=>res.json()).then(tasksDto=>{
+        console.log({tasksDto})
+        $.dto=tasksDto
+    }))
+    Object.defineProperty($,"dto",{
+        set:async list=>{for(dto of list)await $.addChild(dto)},
+        get:f=>[$(`>.task:not( .__template)$`)].map($ch=>{
+            console.log($ch.dto)
+            return $ch.dto
+        }),
+    })
+    $.addChild=dto=>$(this.insertAdjacentHTML('beforeend',`<div _class="components/task"></div>`))
+        .then(([$ch])=>{
+            console.log(dto)
+            $ch.dto=dto
+        })
+
+    $.create=e=>$.upsert($('.__template$').dto)
+    $.upsert=dto=>{
+        if(!dto.id && !(dto.name && dto.start && dto.end))return console.log('upsert reject')
+        fetch('api/scheduler',{method:"POST",headers:{'Content-Type': 'application/json'},
+            body:JSON.stringify(dto)
+        }).then(res=>res.json()).then(res=>{
+            if(res.statusCode)throw res.message;
+            else if(dto.id)return console.log({dto}, "updated by", {res})
+            console.log("created", {res})
+            return $.addChild(res)
+        }).catch(alert)
+    }
+    $.delete=$ch=>fetch(`api/scheduler/${$ch.id}`,{method:'DELETE'}).finally(f=>$.removeChildren($ch('.__')))
+    $.editTask=$ch=>{
+        $('<.taskeditor$').loadTask($ch.dto)
+    }
+</script>

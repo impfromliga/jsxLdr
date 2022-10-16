@@ -1,0 +1,61 @@
+<div class=__template _class=file:components/file>
+    File-list <button _click=<$create>+</button>:
+    <input class="file__file" type="file" />
+</div>
+<b style="color:red">exist list not implement yet</b>
+<style>
+    .__{border:1px solid #999}
+    .__template{background:#cdf;min-height:2em;}
+    .__>.file:not( .__template){
+        min-height:2em;
+        border-bottom:1px solid;
+    }
+    .__>.file[n2]{background:#ffe}
+    .__template .file__notpl{display:none}
+
+    .__ button{min-width:2em; margin:.25em .25em}
+    .file__id{width: 2em;display: inline-block;}
+    .file__start:invalid, .file__end:invalid{background:#f99}
+    .file__meta{display:inline-block}
+    [class*="file__meta-"]:before{content:'- '}
+</style>
+<script>
+    queueMicrotask(f=>fetch('api/scheduler/files').then(res=>res.json()).then(tasksDto=>{
+        console.log({tasksDto})
+        $.dto=tasksDto
+    }))
+    Object.defineProperty($,"dto",{
+        set:async list=>{for(dto of list)await $.addChild(dto)},
+        get:f=>[$(`>.task:not( .__template)$`)].map($ch=>{
+            console.log($ch.dto)
+            return $ch.dto
+        }),
+    })
+    $.addChild=dto=>$(this.insertAdjacentHTML('beforeend',`<div _class="components/file"></div>`))
+        .then(([$ch])=>{
+            console.log(dto)
+            $ch.dto=dto
+        })
+
+    $.create=e=>{
+        let { name } = $('.__template$').dto;
+        let file = $('.file__file').files[0];
+        if(!file || !name)return console.log('error file reject')
+        console.log('create',dto);
+        const body  = new FormData();
+        body.append('file', file);
+        fetch(`api/scheduler/file/${name}`,{method:"POST",
+            //headers:{'Content-Type': 'multipart/form-data; boundary=-7MA4YWxkTrZ0gW'},
+            body
+        }).then(res=>res.json()).then(res=>{
+            if(res.statusCode)throw res.message;
+            else if(!res.status == 'ok') throw new Error(res.message);
+            $.addChild(res)
+            return console.log({dto}, "add by", {res})
+        }).catch(alert)
+    }
+    $.delete=$ch=>fetch(`api/scheduler/file/${$ch.dto.name}`,{method:'DELETE'}).finally(f=>$.removeChildren($ch('.__')))
+    // $.editTask=$ch=>{
+    //     $('<.taskeditor$').loadTask($ch.dto)
+    // }
+</script>

@@ -1,0 +1,55 @@
+<tr class="__head">
+    <th>undefined</th>
+</tr>
+<style>
+    .__ {width:100%}
+    .__ td, .__ th{outline: 1px solid #999}
+    .__ th{background: #cdf}
+</style>
+<script>
+    Object.defineProperty($,"dto",{
+        set:async ({rows, fields})=>{
+            // $.removeChildren('.tablerow$') //FIX: insert rand tbody parent bug
+            this.querySelectorAll(`tr:not(.${$}__head)`)
+                .forEach(ch=>ch.parentElement.removeChild(ch))
+            $._fields=fields;
+            $('.__head').innerHTML=fields.map(({name,format})=>
+                `<th>${name}: ${format}</th>`).join('');
+            for(dto of rows)await $.addChild(dto)
+        },
+        get:async f=>{
+            let $chs= await $(`tr:not(.__head)[]$`);
+            console.log({$chs})
+            return {
+                fields:$._fields,
+                rows:$chs.map($ch=>{
+                    console.log($ch)
+                    console.log($ch.dto)
+                    return $ch.dto
+                }),
+            }
+        }
+    })
+
+    $.addChild=dto=>$(
+        this.insertAdjacentHTML('beforeend',`<tr>${
+            Object.keys(dto).map(k=>`<td>${dto[k]}</td>`).join('')
+        }</tr>`)
+    )
+
+    $.loadEntries=(cred,table)=>{
+        console.log('loadEntries', {cred, table})
+        if(!cred||!table)return;
+        fetch(`api/scanner/entries/${table}`,{
+            method:'post',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(cred)
+        }).then(res=>res.json()).then((dto)=>{
+            let{ rowCount, rows, fields }=dto;
+            console.log(`scanner/entries/${table}`, dto)
+
+            this._cred=cred
+            this._table=table
+            $.dto={rows, fields}
+        })
+    }
+</script>

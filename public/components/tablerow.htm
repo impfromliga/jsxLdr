@@ -1,0 +1,18 @@
+<td class="__tablename"></td>
+<td class="__schemaname"></td>
+<td class="__tableowner"></td>
+<td class="__tablespace"></td>
+<td class="__hasindexes"></td>
+<td class="__hasrules"></td>
+<td class="__hastriggers"></td>
+<td class="__rowsecurity"></td>
+<script>
+const KEY=`schemaname|tablename|tableowner|tablespace|hasindexes|hasrules|hastriggers|rowsecurity`.split('|')
+Object.defineProperty($,"dto",{
+    set:o=>Object.keys(o).forEach(k=>{
+        if(/^schemaname|tablename|tableowner|tablespace|hasindexes|hasrules|hastriggers|rowsecurity$/.exec(k))
+            $(`.${$}__${k}`).innerText=o[k]
+    }),
+    get:f=>KEY.reduce((o,k)=>Object.assign(o,{[k]:$(`.${$}__${k}`).innerText}))
+})
+</script>

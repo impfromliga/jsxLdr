@@ -1,10 +1,10 @@
 // (function(){
 let I=0
 const Z= {}
-const E=['_click','_dblclick','_change','_input']
+const E=['_click','_dblclick','_change','_input','_dragstart','_drop']
 const L=['MOUNT','DISMOUNT']
 const P=(BEM,str)=>str
-    //basicly find ='__module in BEM classNames and .__module in CSS section
+    //basicly find ='__module in BEM-classNames and .__module in CSS section
     .replace(/((= |=|=\"|= \")|((^|\s)\.))((__[a-z])|__([^a-z]|$))/gi,`$2$3${BEM}$6$7`)
     //option for replace [A] / [-A] to [0n+A] / [0n-A]
     .replace(/\[(\d*)\]/,`[0n+$1]`).replace(/\[-(\d*)\]/,`[0n-$1]`)
@@ -17,7 +17,7 @@ const ARG=s=>/^(?:([^<{:]*):)?([^=<]*?)(\.[^.=<]*)?(?:<([^>]*)(?:>|>?$))?(?:=(.*
 export default function jsxldr($pa, $pa_children){
     // console.log({'this':this})
     const pa=(this!=window)&&this||document.body;
-    return [].slice.call(pa.querySelectorAll(`[_class]`)).map(async el=>{
+    return [].slice.call(pa.querySelectorAll(`[_class]:not([_class^="__tpl_"])`)).map(async el=>{
         let _id= I++;
         let jsxldrAttr= el.getAttribute('_class');
 
@@ -30,7 +30,6 @@ export default function jsxldr($pa, $pa_children){
         [,jsxClass]=/(?:^|\/)(-?[_a-zA-Z][-_a-zA-Z0-9]*)$/.exec(jsxClass)??
             [console.warn({jsxldrAttr,random:_id}),'random'+_id];
         //console.log({jsxClass, href, ext, _arguments});
-
         el.classList.add(jsxClass); el.setAttribute('jsx',_id);
         el.removeAttribute('_class');
         const _children={};
@@ -175,21 +174,22 @@ export default function jsxldr($pa, $pa_children){
         if($pa_children)$pa_children[$]=($pa_children[$]??[]).concat($) //append jsxs to exist children
 
         await fetch(href).then(r=>r.text()).then(async str=>{
-            let {0:script,2:js,index}=/<script>(\n|\r)*((.|\n|\r)*?)<\/script>/.exec(str)??{0:0,2:0,index:0};
-            //js set
+            let {0:script,1:js,index}=/<script>((.|\n|\r)*?)<\/script>/i.exec(str)??{0:0,1:0,index:0};
+            str=str.slice(0,index)+str.slice(index+script.length);
+            //JS set
             // new Function('$',js).call(el,$)
             new (Object.getPrototypeOf(async f=>f).constructor)('$','arguments',
                 // `if(constructor)$('@NEW').then(constructor);`+
                 js).call(el,$,_arguments)
             // new Function('$','mount','dismount',js).call(el,$,1,2)
             //(L=new (Object.getPrototypeOf(function*(){}).constructor)('$','mount','dismount',js).call(el,$,1,2)).next()
-
-            //HTML, CSS set
-            str=P($,str.substr(0,index)+str.substr(index+script.length))
-            let [style,,css]=/<style>(\n|\r)*((.|\n|\r)*?)<\/style>/.exec(str)??[0,0,0];
-            let htm=str.replace(style,'').trim();
-            if(css)htm+=`\n<style>\n${css}</style>`;
-            el.insertAdjacentHTML('beforeend',htm);
+            //HTML, CSS replace prefix sugar:
+            str=str.replace(/<style>((.|\n|\r)*?)<\/style>/gi,s=>P($,s));
+            el.insertAdjacentHTML('beforeend',str);
+            //pass parent classname as prefix sugar to tpl:
+            ['','_'].forEach(dsh=>el.querySelectorAll(`[${dsh}class^="__"]`).forEach(e=>{
+                e.setAttribute(dsh+'class', $+e.getAttribute(dsh+'class'));
+            }))
             //bind jobs:
             let bindlate=[].slice.call(el.querySelectorAll(E.map(e=>`[${e}]`).join(',')));
             //await load nested:
@@ -198,12 +198,13 @@ export default function jsxldr($pa, $pa_children){
             bindlate.forEach(ch=>{
                 if(!ch.parentElement)return //console.log('bind parent=null', {ch});
                 E.forEach(ev=>{
-                    let bin= ch.getAttribute(ev) ;
+                    let bin= ch.getAttribute(ev);
                     if(!bin)return;else ch.removeAttribute(ev);
                     //TODO: by $ scope //best 1st ?
                     let bind = $(bin);
-                    (ch['on'+ev.slice(1)]=bind||console.error({el,ch,bin,bind},Error('bind')))
-                    //&&console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
+                    // (ch['on'+ev.slice(1)]=bind||console.error({el,ch,bin,bind},Error('bind')))
+                    (ch.addEventListener(ev.slice(1), bind||console.error({el,ch,bin,bind},Error('bind'))) )
+                    ||console.log(`${ch.className}.on${ev.slice(1)}=.${$+bind}`)
                 })
             })
         })

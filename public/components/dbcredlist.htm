@@ -1,0 +1,49 @@
+<div class="__template" _class="dbcred:components/dbcred">
+    <button _click="<$create">+</button>
+</div>
+<style>
+    .__ button{min-width:2em; margin:.25em .25em}
+    .__template{background:#cdf;min-height:2em;}
+    .__template .dbcred__notpl{display:none}
+
+    .dbcred__id{width: 2em;display: inline-block;}
+    .dbcred__username{width:9em}
+    .dbcred__password{width:6em}
+    .dbcred__port{width:3em}
+    .dbcred__database{width:6em}
+</style>
+<script>
+    const REQUIRED='name|type|username|host|port|database'.split('|');
+    queueMicrotask(f=>fetch('api/scanner').then(res=>res.json()).then(dto=>$.dto=dto))
+
+    Object.defineProperty($,"dto",{
+        set:async list=>{for(dto of list)await $.addChild(dto)},
+        get:f=>$(`>.dbcred:not( .__template)[]$`).map($ch=>{
+            console.log($ch.dto)
+            return $ch.dto
+        }),
+    })
+    $.addChild=dto=>$(
+        this.insertAdjacentHTML('beforeend',`<div _class="dbcred:components/dbcred"></div>`)
+    ).then(([$ch])=>{
+        console.log(dto)
+        $ch.dto=dto
+    })
+
+    $.create=e=>$.upsert($('.__template$').dto)
+    $.upsert=dto=>{
+        if(!dto.id && REQUIRED.some(k=>!dto[k]) )return console.log('upsert reject')
+        fetch('api/scanner',{method:"POST",headers:{'Content-Type': 'application/json'},
+            body:JSON.stringify(dto)
+        }).then(res=>res.json()).then(res=>{
+            if(res.statusCode)throw res.message;
+            else if(dto.id)return console.log({dto}, "updated by", {res})
+            console.log("created", {res})
+            return $.addChild(res)
+        }).catch(alert)
+    }
+    $.cut=$ch=>fetch(`api/scanner/${$ch.id}`,{method:'DELETE'}).finally(f=>{
+        $('.__template$').dto=Object.assign({},$ch.dto,{id:undefined});
+        $.removeChildren($ch('.__'))
+    })
+</script>

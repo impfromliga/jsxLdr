@@ -1,0 +1,63 @@
+<tr class="__head">
+    <th>schemaname</th>
+    <th>tablename</th>
+    <th>tableowner</th>
+    <th>tablespace</th>
+    <th>hasindexes</th>
+    <th>hasrules</th>
+    <th>hastriggers</th>
+    <th>rowsecurity</th>
+</tr>
+<style>
+    .__ {width:100%}
+    .__ td, .__ th{outline:1px solid #999;cursor:pointer}
+    .__ th{background: #cdf}
+    .__ tr:not(.__head):hover{background:#ffc}
+</style>
+<script>
+    Object.defineProperty($,"dto",{
+        set:async list=>{
+            // $.removeChildren('.tablerow$') //FIX: insert rand tbody parent bug
+            this.querySelectorAll('.tablerow')
+                .forEach(ch=>ch.parentElement.removeChild(ch))
+            for(dto of list)await $.addChild(dto)
+        },
+        get:f=>{
+            let $chs= $(`.tablerow[]$`);
+            console.log('get',{$chs})
+            return $chs.map($ch=>{
+                console.log($ch)
+                console.log($ch.dto)
+                return $ch.dto
+            })
+        }
+    })
+
+    $.addChild=dto=>$(
+        this.insertAdjacentHTML('beforeend',`<tr _class="components/tablerow"></tr>`)
+    ).then(([$ch])=>{
+        console.log(dto)
+        $ch.dto=dto
+    })
+
+    $.loadTables= cred=>fetch(`api/scanner/tables`,{
+        method:'post',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(cred)
+    }).then(res=>res.json()).then(dto=>{
+        console.log(dto);
+        $.dto=dto;
+    }).then(f=>$._cred=cred)
+
+    this.onclick=async ({target})=>{
+        if(!target.parentElement.classList.contains('tablerow'))return;
+        let{innerText}=target.parentElement.querySelector('.tablerow__tablename')
+        if(!innerText)return;
+        console.log('onclick',{cred:$._cred})
+        $('<.entrieslist$').loadEntries($._cred,innerText)
+    }
+
+    queueMicrotask(e=>{
+        // $.addChild({tablename:"test"})
+    });
+</script>
+
